@@ -27,6 +27,8 @@ class World {
     setInterval(() => {
       this.checkCollisons();
       this.checkThrowableObjects();
+      this.collectCoins();
+      this.collectBottles()
     }, 200);
   }
 
@@ -40,14 +42,40 @@ class World {
   }
 
   checkThrowableObjects() {
-    if (this.keyboard.SPACE) {
+    if (this.keyboard.SPACE && this.character.bottle > 0) {
       let bottle = new ThrowableObject(
         this.character.x + 100,
         this.character.y + 100
       );
       this.throwableObjects.push(bottle);
-    }
+      this.character.bottle -= 20; // Eine Flasche weniger
+      this.statusbarBottle.setPercentage(this.character.bottle); // Statusbar aktualisieren
   }
+
+  }
+
+  collectCoins() {
+    this.level.coins = this.level.coins.filter(coin => {
+        if (this.character.isColliding(coin)) {
+            this.character.isCollectCoin();
+            this.statusbarCoin.setPercentage(this.character.coin);
+            return false; // Entfernt die Münze aus dem Array
+        }
+        return true; // Behält die Münze im Array
+    });
+  }
+
+  collectBottles() {
+    this.level.bottles = this.level.bottles.filter(bottle => {
+        if (this.character.isColliding(bottle)) {
+            this.character.isCollectBottle();
+            this.statusbarBottle.setPercentage(this.character.bottle);
+            return false; // Entfernt die Münze aus dem Array
+        }
+        return true; // Behält die Münze im Array
+    });
+  }
+
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

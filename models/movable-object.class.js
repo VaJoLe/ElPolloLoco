@@ -73,4 +73,14 @@ class MovableObject extends DrawableObject {
     timepassed = timepassed / 1000; // difference in s
     return timepassed < 1;
   }
+
+  isCollectCoin(){
+    this.coin += 20;
+  }
+
+  isCollectBottle(){
+    if (this.bottle < 100) { // 100 entspricht 5 Flaschen (jede Flasche = 20)
+      this.bottle += 20;
+    } 
+  }
 }
