@@ -11,7 +11,7 @@ class ThrowableObject extends MovableObject {
     'img/6_salsa_bottle/bottle_rotation/bottle_splash/3_bottle_splash.png',
     'img/6_salsa_bottle/bottle_rotation/bottle_splash/4_bottle_splash.png',
     'img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png',
-    'img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png'
+    'img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png',
   ];
 
   constructor(x, y) {
@@ -25,7 +25,7 @@ class ThrowableObject extends MovableObject {
     this.endboss = new Endboss();
     this.hitEndboss = false;
     this.throw();
-    this.animate();
+    //this.animate();
   }
 
   throw() {
@@ -33,45 +33,44 @@ class ThrowableObject extends MovableObject {
     this.applyGravity();
 
     let interval = setInterval(() => {
-      this.x += 15; // Geschwindigkeit nach rechts
-      if (this.isColliding(this.endboss)) {
-        this.hitEndboss = true;
-        this.stopGravity(); // Schwerkraft ausschalten
-        clearInterval(interval); // Bewegung stoppen
+      if (!this.hitEndboss) {
+        this.x += 15; // Flasche fliegt nach rechts
+        this.playAnimation(this.IMAGES_ROTATION);
+
+        // Prüfen, ob die Flasche in der Mitte des Endboss ist
+        if (
+          this.endboss &&
+          this.x >= this.endboss.x + this.endboss.width / 2 - this.width / 2
+        ) {
+          this.hitEndboss = true;
+          this.stopGravity();
+          clearInterval(interval); // Bewege die Flasche nicht weiter
+          this.splash();
+        }
       } else if (this.y > 400) {
-        clearInterval(interval);
-        // Wenn die Flasche den Boden erreicht
+        clearInterval(interval); // Falls die Flasche den Boden erreicht
       }
     }, 25);
   }
 
   stopGravity() {
-    this.speedY = 0;  // Geschwindigkeit auf 0 setzen, um Fallen zu stoppen
-    this.acceleration = 0; // Keine weitere Gravitation anwenden
+    this.speedY = 0;
+    this.acceleration = 0;
   }
 
-  animate() {
-    let splashAnimationInterval;
-    setInterval(() => {
-      if (this.hitEndboss) {
-        this.y = this.endboss.y + this.endboss.height / 2; // Flasche bleibt auf Y-Höhe des Endbosses
-        this.playAnimation(this.IMAGES_SPLASH);
+  splash() {
+    this.currentImage = 0; // Wichtig: Animation zurücksetzen!
 
-        if (!splashAnimationInterval) {
-          splashAnimationInterval = setInterval(() => {
-            this.playAnimation(this.IMAGES_SPLASH);
-            if (this.currentImage >= this.IMAGES_SPLASH.length - 1) {
-              clearInterval(splashAnimationInterval);
-              world.throwableObjects.splice(world.throwableObjects.indexOf(this), 1); // Flasche aus Array entfernen
-            }
-          }, 100);
-        }
-      } else if (this.isAboveGround()) {
-        this.playAnimation(this.IMAGES_ROTATION);
+    let splashAnimationInterval = setInterval(() => {
+      this.playAnimation(this.IMAGES_SPLASH); // Nutzt die vorhandene Methode
+
+      // Prüfe, ob die Animation am Ende ist:
+      if (this.currentImage >= this.IMAGES_SPLASH.length) {
+        clearInterval(splashAnimationInterval); // Stoppt die Animation
+        world.throwableObjects = world.throwableObjects.filter(
+          obj => obj !== this
+        ); // Entfernen
       }
-    }, 50);
+    }, 100);
   }
 }
-
-// (this.x >= this.endboss.x + this.endboss.width / 2 - this.width / 2) {
-  // this.x = this.endboss.x + this.endboss.width / 2 - this.width / 2;
