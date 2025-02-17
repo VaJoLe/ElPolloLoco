@@ -37,12 +37,12 @@ class ThrowableObject extends MovableObject {
         this.x += 15; // Flasche fliegt nach rechts
         this.playAnimation(this.IMAGES_ROTATION);
 
+        // Endboss dynamisch aus der Gegnerliste abrufen
+        let endboss = world.level.enemies.find(enemy => enemy instanceof Endboss);
+
         // Prüfen, ob die Flasche in der Mitte des Endboss ist
-        if (
-          this.endboss &&
-          this.x >= this.endboss.x + this.endboss.width / 2 - this.width / 2
-        ) {
-          this.hitEndboss = true;
+        if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
+          endboss.gotHit(); // Endboss-Status ändern
           this.stopGravity();
           clearInterval(interval); // Bewege die Flasche nicht weiter
           this.splash();
@@ -51,7 +51,8 @@ class ThrowableObject extends MovableObject {
         clearInterval(interval); // Falls die Flasche den Boden erreicht
       }
     }, 25);
-  }
+}
+
 
   stopGravity() {
     this.speedY = 0;
