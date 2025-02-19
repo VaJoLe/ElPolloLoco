@@ -38,25 +38,41 @@ animate() {
 }
 
 checkIfSquashed() {
-  let char = this.world.character;
-  
-  let charBottom = char.y + char.height;
-  let chickenTop = this.y;
+  if (this.world && this.world.character.isColliding(this)) {
+      let char = this.world.character;
 
-  let charXRight = char.x + char.width;
-  let charXLeft = char.x;
-  let chickenXRight = this.x + this.width;
-  let chickenXLeft = this.x;
+      let charFeet = char.y + char.height; // Unterkante des Charakters
+      let chickenTop = this.y; // Oberkante des Chickens
+      let charMidX = char.x + char.width / 2; // Mittelpunkt des Charakters auf der X-Achse
+      let chickenMidX = this.x + this.width / 2; // Mittelpunkt des Chickens auf der X-Achse
+      let isAbove = charFeet > chickenTop - 5 && charFeet < chickenTop + 20; // Mehr Spielraum!
+      let isFalling = char.speedY < 0; // Charakter muss fallen
+      let isCentered = Math.abs(charMidX - chickenMidX) < (char.width / 2 + this.width / 2) / 2; // Größerer Bereich
 
-  let horizontalCollision = charXRight > chickenXLeft && charXLeft < chickenXRight;
-  let verticalCollision = charBottom >= chickenTop && char.speedY < 0;
+      console.log("🐔 --- Kollisionsprüfung ---");
+      console.log("➡ Charakter-Position:", { x: char.x, y: char.y });
+      console.log("➡ Chicken-Position:", { x: this.x, y: this.y });
+      console.log("➡ Charakter-Füße:", charFeet, " | Chicken-Kopf:", chickenTop);
+      console.log("➡ Ist genau auf Chicken:", isAbove);
+      console.log("➡ Charakter fällt:", isFalling, " (SpeedY:", char.speedY, ")");
+      console.log("➡ Mittig über Chicken:", isCentered);
+      console.log("----------------------");
 
-  if (horizontalCollision && verticalCollision) {
-      this.die();
-      char.y = this.y - char.height; // Charakter landet exakt auf Huhn
-      char.jump(); // Charakter springt leicht nach Zerquetschen
+      if (isAbove && isFalling && isCentered) {  
+          console.log("✅ Huhn zerquetscht!");
+          this.die();
+          char.jump(); // Charakter springt leicht nach Zerquetschen
+      } else {
+          console.log("❌ Kein Zerquetschen erkannt.");
+      }
   }
 }
+
+
+
+
+
+
 
 
 die() {
