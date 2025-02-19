@@ -21,25 +21,41 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.enemies.forEach(enemy => enemy.world = this); // 👈 Jedes Huhn bekommt `world`
   }
 
   run() {
     setInterval(() => {
-      this.checkCollisons();
       this.checkThrowableObjects();
       this.collectCoins();
       this.collectBottles()
+      this.checkCollisons();
     }, 200);
+    setInterval(() => {
+      this.checkSquash();
+    }, 100);
+  
+  }
+
+
+  checkSquash() {
+    this.level.enemies.forEach(enemy => {
+      if (enemy instanceof Chicken && !enemy.isDead) {
+        enemy.checkIfSquashed();
+      }
+    });
   }
 
   checkCollisons() {
     this.level.enemies.forEach(enemy => {
-      if (this.character.isColliding(enemy)) {
-        this.character.hit();
-        this.statusbarHealth.setPercentage(this.character.energy);
-      }
+        if (!enemy.isDead && this.character.isColliding(enemy)) {
+            this.character.hit();
+            this.statusbarHealth.setPercentage(this.character.energy);
+        }
     });
-  }
+}
+
+
 
   checkThrowableObjects() {
     if (this.keyboard.SPACE && this.character.bottle > 0) {

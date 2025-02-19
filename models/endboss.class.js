@@ -41,6 +41,7 @@ class Endboss extends MovableObject {
   speed = 1;
   hitEndboss = false; // Neuer Zustand für Treffer
   lives = 4; // Der Endboss hat 4 Leben
+  isDead = false; // Neue Variable, um erneute Treffer nach dem Tod zu verhindern
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -50,39 +51,84 @@ class Endboss extends MovableObject {
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
 
-    this.x = 2700;
+    this.x = 2600;
 
     this.animate();
   }
 
   gotHit() {
-    this.lives--; // Ein Leben abziehen
-    this.speed += 0.5; // Endboss wird schneller
+    if (this.isDead) return; // Falls der Endboss schon tot ist, passiert nichts mehr
 
-    if (this.lives > 2) {
-        // Bei 4 & 3 Leben bleibt Attack-Animation aktiv
-        this.playAnimation(this.IMAGES_ATTACK);
-    } else if (this.lives > 0) {
-        // Bei 2 & 1 Leben: Hurt-Animation einmal abspielen, dann stoppen
-        this.playAnimation(this.IMAGES_HURT);
+    this.lives--;
+    this.speed += 10;
+
+    if (this.lives === 3) {
+      // Beim ersten Treffer wird die Alert-Animation abgespielt
+      this.playAlertAnimation();
+    } else if (this.lives === 2) {
+      // Attack-Animation läuft weiter
+      this.playAttackAnimation();
+    } else if (this.lives === 1) {
+      // Hurt-Animation bei nur noch einem Leben
+      this.playHurtAnimation();
     } else {
-        // Bei 0 Leben: Dead-Animation abspielen und Bewegung stoppen
-        this.die();
+      // 0 Leben → Dead-Animation
+      this.die();
     }
-}
+  }
 
-die() {
-    this.playAnimation(this.IMAGES_DEAD);
-    this.speed = 0; // Endboss bleibt stehen
-}
+  playAlertAnimation() {
+    clearInterval(this.animationInterval);
+    this.alertInterval = setInterval(() => {
+      this.playAnimation(this.IMAGES_ALERT);
+    }, 100);
+  }
 
-animate() {
-    setInterval(() => {
-        if (this.lives > 2) {
-            this.moveLeft();
-            this.playAnimation(this.IMAGES_WALKING);
-        }
-    }, 200);
-}
+  playAttackAnimation() {
+    clearInterval(this.animationInterval);
+    clearInterval(this.alertInterval);
+    this.animationInterval = setInterval(() => {
+      this.moveLeft(); // Endboss wird schneller
 
+      this.playAnimation(this.IMAGES_ATTACK);
+    }, 100);
+  }
+
+  playHurtAnimation() {
+    this.currentImage = 0;
+    clearInterval(this.animationInterval);
+    let hurtInterval = setInterval(() => {
+      this.playAnimation(this.IMAGES_HURT);
+      if (this.currentImage >= this.IMAGES_HURT.length) {
+        clearInterval(hurtInterval);
+        this.animationInterval = setInterval(() => {
+          this.playAnimation(this.IMAGES_HURT);
+        }, 100);
+      }
+    }, 100);
+  }
+
+  die() {
+    if (this.isDead) return; // Falls die Animation schon lief, nicht nochmal abspielen
+    this.isDead = true;
+
+    this.currentImage = 0;
+    clearInterval(this.animationInterval);
+    let deadInterval = setInterval(() => {
+      this.playAnimation(this.IMAGES_DEAD);
+      if (this.currentImage >= this.IMAGES_DEAD.length) {
+        clearInterval(deadInterval);
+        this.speed = 0; // Endboss bleibt stehen
+      }
+    }, 100);
+  }
+
+  animate() {
+    this.animationInterval = setInterval(() => {
+      if (this.lives > 3) {
+        this.moveLeft();
+        this.playAnimation(this.IMAGES_WALKING);
+      }
+    }, 100);
+  }
 }
