@@ -26,27 +26,26 @@ class World {
 
   run() {
     setInterval(() => {
-      this.checkThrowableObjects();
-      this.collectCoins();
-      this.collectBottles()
-      this.checkCollisons();
-    }, 200);
-    setInterval(() => {
-      this.checkSquash();
-    }, 100);
-  
-  }
+        this.checkSquash();  // 🥇 Erst prüfen, ob Gegner zerquetscht werden
+        this.checkCollisions();  // 🥈 Danach erst normale Kollisionen prüfen
+        this.checkThrowableObjects();
+        this.collectCoins();
+        this.collectBottles();
+    }, 50);
+}
+
 
 
   checkSquash() {
     this.level.enemies.forEach(enemy => {
-      if (enemy instanceof Chicken && !enemy.isDead) {
-        enemy.checkIfSquashed();
-      }
+        if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
+            enemy.checkIfSquashed();
+        }
     });
-  }
+}
 
-  checkCollisons() {
+
+  checkCollisions() {
     this.level.enemies.forEach(enemy => {
         if (!enemy.isDead && this.character.isColliding(enemy)) {
             this.character.hit();
