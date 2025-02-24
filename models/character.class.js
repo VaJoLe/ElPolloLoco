@@ -52,6 +52,11 @@ class Character extends MovableObject {
 
   world;
   animationSpeed;
+  lastInputTime = new Date().getTime();
+  isDead = false;
+  deadAnimationPlayed = false; // Flag, ob die Dead-Animation bereits abgespielt wurde
+
+
 
   constructor() {
     super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
@@ -59,47 +64,73 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
+    this.loadImages(this.IMAGES_STAND);
     this.applyGravity();
 
     this.animate();
   }
 
   animate() {
-    // bewegung mittels pfeiltasten
     setInterval(() => {
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        this.moveRight();
-        this.otherDirection = false;
-      }
+        if (!this.isDead) { // Nur wenn der Charakter noch lebt, kann er sich bewegen
+            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+                this.moveRight();
+                this.otherDirection = false;
+            }
+            if (this.world.keyboard.LEFT && this.x > -620) {
+                this.moveLeft();
+                this.otherDirection = true;
+            }
+            if (this.world.keyboard.UP && !this.isAboveGround()) {
+                this.jump();
+            }
 
-      if (this.world.keyboard.LEFT && this.x > -620) {
-        this.moveLeft();
-        this.otherDirection = true;
-      }
-      //springen
-      if (this.world.keyboard.UP && !this.isAboveGround()) {
-        this.jump();
-      }
-
-      this.world.camera_x = -this.x + 90;
+            this.world.camera_x = -this.x + 90;
+        }
     }, 1000 / 60);
 
-    //bilder animieren
     setInterval(() => {
-      if (this.isDead()) {
-        this.playAnimation(this.IMAGES_DEAD);
+      if (this.isDead && !this.deadAnimationPlayed) {
+          this.playDeadAnimation();
       } else if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
+          this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
-        this.playAnimation(this.IMAGES_JUMPING);
+          this.playAnimation(this.IMAGES_JUMPING);
       } else {
-        if (
-          !this.isAboveGround() &&
-          (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)
-        ) {
-          this.playAnimation(this.IMAGES_WALKING);
-        }
+          if (!this.isAboveGround() && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
+              this.playAnimation(this.IMAGES_WALKING);
+          } else {
+              this.playAnimation(this.IMAGES_STAND);
+          }
       }
-    }, 85);
-  }
+  }, 85);
+}
+die() {
+  if (this.isDead) return; // Falls der Tod schon ausgelöst wurde, nicht nochmal abspielen
+  this.isDead = true;
+  this.playDeadAnimation();
+}
+
+playDeadAnimation() {
+  this.deadAnimationPlayed = true;
+  this.currentImage = 0;
+  let deadInterval = setInterval(() => {
+      this.playAnimation(this.IMAGES_DEAD);
+      if (this.currentImage >= this.IMAGES_DEAD.length) {
+          clearInterval(deadInterval);
+          this.startFalling();
+      }
+  }, 100);
+}
+
+startFalling() {
+  let fallInterval = setInterval(() => {
+      this.y += 10;
+
+      if (this.y > 600) { // Wenn der Charakter aus dem Bild gefallen ist
+          clearInterval(fallInterval);
+      }
+  }, 50);
+}
+
 }

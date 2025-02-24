@@ -9,6 +9,7 @@ class World {
   statusbarBottle = new StatusbarBottle();
   statusbarCoin = new StatusbarCoin();
   throwableObjects = [];
+  spacePressed = false; // Verhindert mehrfaches Werfen beim Halten der Leertaste
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext('2d');
@@ -17,6 +18,31 @@ class World {
     this.draw();
     this.setWorld();
     this.run();
+    this.setupKeyboardListener(); // Event-Listener für Space hinzufügen
+  }
+
+  setupKeyboardListener() {
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Space' && !this.spacePressed) {
+        this.spacePressed = true;
+        this.throwBottle();
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.code === 'Space') {
+        this.spacePressed = false; // Taste losgelassen, erneutes Werfen möglich
+      }
+    });
+  }
+
+  throwBottle() {
+    if (this.character.bottle > 0) {
+      let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
+      this.throwableObjects.push(bottle);
+      this.character.bottle -= 20; // Eine Flasche weniger
+      this.statusbarBottle.setPercentage(this.character.bottle); // Statusbar aktualisieren
+    }
   }
 
   setWorld() {
@@ -28,7 +54,6 @@ class World {
     setInterval(() => {
         this.checkSquash();  // 🥇 Erst prüfen, ob Gegner zerquetscht werden
         this.checkCollisions();  // 🥈 Danach erst normale Kollisionen prüfen
-        this.checkThrowableObjects();
         this.collectCoins();
         this.collectBottles();
     }, 50);
@@ -36,38 +61,34 @@ class World {
 
 
 
-  checkSquash() {
-    this.level.enemies.forEach(enemy => {
-        if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
-            enemy.checkIfSquashed();
-        }
-    });
-}
+checkSquash() {
+  if (!this.character || this.character.isRemoved) return; // Falls Charakter entfernt wurde, keine Prüfung
 
-
-  checkCollisions() {
-    this.level.enemies.forEach(enemy => {
-        if (!enemy.isDead && this.character.isColliding(enemy)) {
-            this.character.hit();
-            this.statusbarHealth.setPercentage(this.character.energy);
-        }
-    });
+  this.level.enemies.forEach(enemy => {
+      if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
+          enemy.checkIfSquashed();
+      }
+  });
 }
 
 
 
-  checkThrowableObjects() {
-    if (this.keyboard.SPACE && this.character.bottle > 0) {
-      let bottle = new ThrowableObject(
-        this.character.x + 100,
-        this.character.y + 100
-      );
-      this.throwableObjects.push(bottle);
-      this.character.bottle -= 20; // Eine Flasche weniger
-      this.statusbarBottle.setPercentage(this.character.bottle); // Statusbar aktualisieren
-  }
+checkCollisions() {
+  if (!this.character || this.character.isRemoved) return; // Falls Charakter entfernt wurde, keine Kollision prüfen
 
-  }
+  this.level.enemies.forEach(enemy => {
+      if (!enemy.isDead && this.character.isColliding(enemy)) {
+          this.character.hit();
+          this.statusbarHealth.setPercentage(this.character.energy);
+
+          if (this.character.energy <= 0) { // Charakter stirbt, wenn Energie 0 ist
+              this.character.die();
+          }
+      }
+  });
+}
+
+
 
   collectCoins() {
     this.level.coins = this.level.coins.filter(coin => {
