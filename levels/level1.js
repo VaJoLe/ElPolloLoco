@@ -8,7 +8,11 @@ const level1 = new Level(
     new ChickenSmall(),
     new Endboss(),
   ],
-  [new Clouds()],
+  [new Clouds('img/5_background/layers/4_clouds/1.png', -600), 
+    new Clouds('img/5_background/layers/4_clouds/2.png', 0), 
+    new Clouds('img/5_background/layers/4_clouds/1.png', 600), 
+    new Clouds('img/5_background/layers/4_clouds/2.png', 1200), 
+    new Clouds('img/5_background/layers/4_clouds/1.png', 1800)],
   [
     new BackgroundObject('img/5_background/layers/air.png', -719),
     new BackgroundObject('img/5_background/layers/3_third_layer/2.png', -719),

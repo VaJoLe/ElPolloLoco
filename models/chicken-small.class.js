@@ -44,12 +44,11 @@ class ChickenSmall extends MovableObject {
     let isFalling = char.speedY < 0;
     let isCentered =
       Math.abs(char.x + char.width / 2 - (this.x + this.width / 2)) <
-      this.width / 2 + 20;
+      this.width / 2 + 30;
 
     if (isAbove && isFalling && isCentered) {
-      char.y = this.y - 30 - char.height; // Charakter landet exakt auf Huhn
       this.die();
-      char.jump();
+      char.speedY = 15;
     }
   }
 

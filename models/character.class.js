@@ -90,47 +90,50 @@ class Character extends MovableObject {
     }, 1000 / 60);
 
     setInterval(() => {
-      if (this.isDead && !this.deadAnimationPlayed) {
-          this.playDeadAnimation();
-      } else if (this.isHurt()) {
+      if (this.isDead) return; // Falls Charakter tot ist, keine Animationen mehr abspielen
+  
+      if (this.isHurt()) {
           this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
           this.playAnimation(this.IMAGES_JUMPING);
+      } else if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.isAboveGround()) {
+          this.playAnimation(this.IMAGES_WALKING);
       } else {
-          if (!this.isAboveGround() && (this.world.keyboard.RIGHT || this.world.keyboard.LEFT)) {
-              this.playAnimation(this.IMAGES_WALKING);
-          } else {
-              this.playAnimation(this.IMAGES_STAND);
-          }
+          this.playAnimation(this.IMAGES_STAND);
       }
   }, 85);
+  
 }
 die() {
-  if (this.isDead) return; // Falls der Tod schon ausgelöst wurde, nicht nochmal abspielen
+  if (this.isDead) return; // Falls die Animation schon lief, nichts mehr machen
   this.isDead = true;
-  this.playDeadAnimation();
-}
+  this.deadAnimationPlayed = true; // Flag setzen, damit keine andere Animation abläuft
 
-playDeadAnimation() {
-  this.deadAnimationPlayed = true;
   this.currentImage = 0;
+  clearInterval(this.animationInterval);
+
   let deadInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_DEAD);
-      if (this.currentImage >= this.IMAGES_DEAD.length) {
+      if (this.currentImage >= this.IMAGES_DEAD.length - 1) { // Animation durchgelaufen
           clearInterval(deadInterval);
-          this.startFalling();
+          this.startFalling(); // ⏩ Sofort nach der Animation fallen lassen
       }
-  }, 100);
+  }, 100); // Animation schneller durchlaufen lassen
 }
+
 
 startFalling() {
   let fallInterval = setInterval(() => {
-      this.y += 10;
-
-      if (this.y > 600) { // Wenn der Charakter aus dem Bild gefallen ist
+      this.y += 20; // ⏩ Erhöht die Fallgeschwindigkeit (von 10 auf 20)
+      if (this.y > 600) { // Falls er aus dem Bildschirm fällt
           clearInterval(fallInterval);
+          this.removeCharacter();
       }
-  }, 50);
+  }, 30); // ⏩ Verringert das Intervall für flüssigeres und schnelleres Fallen
+}
+
+removeCharacter() {
+  this.isRemoved = true; // Setzt eine Flag, damit keine Kollisionen mehr geprüft werden
 }
 
 }

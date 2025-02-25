@@ -90,16 +90,18 @@ checkCollisions() {
 
 
 
-  collectCoins() {
-    this.level.coins = this.level.coins.filter(coin => {
-        if (this.character.isColliding(coin)) {
-            this.character.isCollectCoin();
-            this.statusbarCoin.setPercentage(this.character.coin);
-            return false; // Entfernt die Münze aus dem Array
-        }
-        return true; // Behält die Münze im Array
-    });
-  }
+collectCoins() {
+  this.level.coins = this.level.coins.filter(coin => {
+      if (this.character.isCollidingYOnly(this.character, coin)) { // Prüft nur Y-Kollision
+          this.character.isCollectCoin();
+          this.statusbarCoin.setPercentage(this.character.coin);
+          return false; // Entfernt die Münze aus dem Array
+      }
+      return true; // Behält die Münze im Array
+  });
+}
+
+
 
   collectBottles() {
     this.level.bottles = this.level.bottles.filter(bottle => {

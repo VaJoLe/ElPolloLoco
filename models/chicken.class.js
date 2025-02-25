@@ -47,12 +47,11 @@ class Chicken extends MovableObject {
     let isFalling = char.speedY < 0;
     let isCentered =
       Math.abs(char.x + char.width / 2 - (this.x + this.width / 2)) <
-      this.width / 2 + 25;
+      this.width / 2 + 40;
 
     if (isAbove && isFalling && isCentered) {
-      char.y = this.y - char.height; // Charakter landet exakt auf Huhn
       this.die();
-      char.jump();
+      char.speedY = 15; // Charakter springt leicht nach Zerquetschen
     }
   }
 
@@ -60,28 +59,6 @@ class Chicken extends MovableObject {
     this.isDead = true;
     this.img = this.imageCache[this.IMAGE_DEAD];
     this.speed = 0; // Stoppt Bewegung
+    this.y = 350;
   }
 }
-
-//   checkIfSquashed() {
-//     if (this.world && this.world.character.isColliding(this)) {
-//         let char = this.world.character;
-
-//         let charBottom = char.y + char.height;
-//         let chickenTop = this.x;
-//         let isAbove = charBottom - 15 < chickenTop; // Puffer für realistischere Kollision
-
-//         console.log("🐔 Kollisionsprüfung: ", {
-//             charBottom,
-//             chickenTop,
-//             isAbove,
-//             speedY: char.speedY
-//         });
-
-//         if (isAbove && char.speedY < 0) {
-//             console.log("✅ Huhn zerquetscht!");
-//             this.die();
-//             char.jump(); // Charakter springt leicht nach Zerquetschen
-//         }
-//     }
-// }

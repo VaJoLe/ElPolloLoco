@@ -55,6 +55,18 @@ class MovableObject extends DrawableObject {
     );
   }
 
+
+isCollidingYOnly(obj1, obj2) {
+  let tolerance = 5; // Falls nötig, Toleranz für kleine Abweichungen
+
+  return (
+      obj1.x + obj1.width >= obj2.x && // Rechte Kante des Charakters trifft auf linke Kante der Münze
+      obj1.x < obj2.x + obj2.width && // Sicherstellen, dass sich die Objekte wirklich überschneiden
+      obj1.y <= obj2.y + tolerance && // Oberkante Charakter ≈ Oberkante Coin
+      obj1.y + obj1.height >= obj2.y // Charakter berührt obere Kante der Münze
+  );
+}
+
   hit() {
     this.energy -= 2;
     if (this.energy < 0) {
@@ -83,4 +95,6 @@ class MovableObject extends DrawableObject {
       this.bottle += 20;
     } 
   }
+  
+  
 }
