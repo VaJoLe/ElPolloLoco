@@ -3,6 +3,14 @@ let world;
 let keyboard = new Keyboard();
 
 function init() {
+  document.getElementById('start-button').addEventListener('click', () => {
+      document.getElementById('start-screen').style.display = 'none'; // Startbildschirm ausblenden
+      document.getElementById('canvas').style.display = 'block'; // Spiel anzeigen
+      startGame(); // Spiel starten
+  });
+}
+
+function startGame() {
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard);
 
