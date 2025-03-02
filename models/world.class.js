@@ -138,6 +138,11 @@ collectCoins() {
     this.addObjectsToMap(this.throwableObjects);
 
     this.ctx.translate(-this.camera_x, 0);
+    
+    // 🟥 NEU: Falls Charakter tot ist, Game-Over-Bild einfügen
+    if (this.character.isDead) {
+      this.ctx.drawImage(this.character.gameOverImage, 0, 0, 720, 480);
+  }
 
     let self = this;
     requestAnimationFrame(function () {
