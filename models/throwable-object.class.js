@@ -51,6 +51,8 @@ class ThrowableObject extends MovableObject {
         clearInterval(interval); // Falls die Flasche den Boden erreicht
       }
     }, 25);
+    World.instance.allIntervals.push(interval); // 🟢 Speichert das Intervall
+
 }
 
 

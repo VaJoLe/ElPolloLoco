@@ -10,8 +10,13 @@ class World {
   statusbarCoin = new StatusbarCoin();
   throwableObjects = [];
   spacePressed = false; // Verhindert mehrfaches Werfen beim Halten der Leertaste
+  static instance;
+    allIntervals = []; // 🟢 Speichert alle gesetzten Intervalle
+    isPaused = false; // 🛑 Pause-Status
+
 
   constructor(canvas, keyboard) {
+    World.instance = this; // Globale Instanz speichern
     this.ctx = canvas.getContext('2d');
     this.canvas = canvas;
     this.keyboard = keyboard;
@@ -20,6 +25,29 @@ class World {
     this.run();
     this.setupKeyboardListener(); // Event-Listener für Space hinzufügen
   }
+
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    
+    if (this.isPaused) {
+        this.stopAllIntervals(); // 🛑 Alle Intervalle stoppen
+    } else {
+        this.resumeAllIntervals(); // ▶️ Alle Intervalle neustarten
+    }
+}
+stopAllIntervals() {
+  this.allIntervals.forEach(clearInterval); // 🛑 Stoppt alle gespeicherten Intervalle
+  this.allIntervals = []; // Leert das Array
+}
+
+resumeAllIntervals() {
+  this.level.enemies.forEach(enemy => {
+      if (enemy instanceof Chicken) enemy.animate(); // 🟢 Gegner-Animationen neustarten
+  });
+  this.level.bottles.forEach(bottle => {
+    bottle.animate();
+});
+}
 
   setupKeyboardListener() {
     document.addEventListener('keydown', (event) => {

@@ -22,16 +22,27 @@ class ChickenSmall extends MovableObject {
 
     this.animate();
   }
-
+  
   animate() {
-    setInterval(() => {
-      if (!this.isDead) this.moveLeft();
+    let moveChickenSmallInterval = setInterval(() => {
+        if (!this.isDead && World.instance && !World.instance.isPaused) {
+            this.moveLeft();
+        }
     }, 1000 / 60);
 
-    setInterval(() => {
-      if (!this.isDead) this.playAnimation(this.IMAGES_WALKING);
+    let playAnimationInterval = setInterval(() => {
+        if (!this.isDead && World.instance && !World.instance.isPaused) {
+            this.playAnimation(this.IMAGES_WALKING);
+        }
     }, 100);
-  }
+
+    // 🟢 Nur speichern, wenn `World.instance` existiert!
+    if (World.instance) {
+        World.instance.allIntervals.push(moveChickenSmallInterval);
+        World.instance.allIntervals.push(playAnimationInterval);
+    }
+}
+
 
   checkIfSquashed() {
     if (!this.world || this.isDead || !this.world.character.isColliding(this))

@@ -19,15 +19,55 @@ body {
 }
 
 #start-button {
+    position: absolute;
+    top: 500px;
     padding: 15px 30px;
     font-size: 20px;
     background-color: yellow;
     border: none;
     cursor: pointer;
-    margin-top: 20px;
 }
 
 canvas {
     display: none;
     /* Spiel erst verstecken */
+}
+
+.pos100{
+    position: absolute;
+    top: 100px;
+    right: 50px;
+}  
+
+.btn {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #ff5733;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: #ff2e00;
+}
+
+.hidden {
+    display: none;
+}
+
+.game-over-btn {
+    position: absolute;
+    top: 500px;
+    right: unset;
+    font-size: 24px;
+    padding: 15px 30px;
+}
+
+.pos200{
+    position: absolute;
+    top: 200px;
+    right: 50px;
 }

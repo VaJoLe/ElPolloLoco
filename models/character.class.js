@@ -65,81 +65,97 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_STAND);
     this.applyGravity();
     this.gameOverImage = new Image();
-    this.gameOverImage.src = 'img/9_intro_outro_screens/game_over/oh no you lost!.png';
-
+    this.gameOverImage.src =
+      'img/9_intro_outro_screens/game_over/oh no you lost!.png';
 
     this.animate();
   }
 
   animate() {
-    setInterval(() => {
-      if (!this.isDead) {
-        // Nur wenn der Charakter noch lebt, kann er sich bewegen
-        if (
-          this.world.keyboard.RIGHT &&
-          this.x < this.world.level.level_end_x
-        ) {
-          this.moveRight();
-          this.otherDirection = false;
-        }
-        if (this.world.keyboard.LEFT && this.x > -620) {
-          this.moveLeft();
-          this.otherDirection = true;
-        }
-        if (this.world.keyboard.UP && !this.isAboveGround()) {
-          this.jump();
-        }
+    let moveCharacterInterval = setInterval(() => {
+        if (!this.isDead && this.world && World.instance && !World.instance.isPaused) {
+            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+                this.moveRight();
+                this.otherDirection = false;
+            }
+            if (this.world.keyboard.LEFT && this.x > -620) {
+                this.moveLeft();
+                this.otherDirection = true;
+            }
+            if (this.world.keyboard.UP && !this.isAboveGround()) {
+                this.jump();
+            }
 
-        this.world.camera_x = -this.x + 90;
-      }
+            this.world.camera_x = -this.x + 90;
+        }
     }, 1000 / 60);
 
-    setInterval(() => {
-      if (this.isDead) return; // Falls Charakter tot ist, keine Animationen mehr abspielen
+    let playAnimationInterval = setInterval(() => {
+        if (this.isDead || (World.instance && World.instance.isPaused)) return; // 🛑 Stoppt Animationen während Pause
 
-      if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
-      } else if (this.isAboveGround()) {
-        this.playAnimation(this.IMAGES_JUMPING);
-      } else if (
-        (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
-        !this.isAboveGround()
-      ) {
-        this.playAnimation(this.IMAGES_WALKING);
-      } else {
-        this.playAnimation(this.IMAGES_STAND);
-      }
+        if (this.isHurt()) {
+            this.playAnimation(this.IMAGES_HURT);
+        } else if (this.isAboveGround()) {
+            this.playAnimation(this.IMAGES_JUMPING);
+        } else if (
+            (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
+            !this.isAboveGround()
+        ) {
+            this.playAnimation(this.IMAGES_WALKING);
+        } else {
+            this.playAnimation(this.IMAGES_STAND);
+        }
     }, 85);
-  }
-  die() {
-    if (this.isDead) return; // Falls die Animation schon lief, nichts mehr machen
-    this.isDead = true;
-    this.deadAnimationPlayed = true; // Flag setzen, damit keine andere Animation abläuft
 
-    this.currentImage = 0;
-    clearInterval(this.animationInterval);
+    if (World.instance) {
+        World.instance.allIntervals.push(moveCharacterInterval);
+        World.instance.allIntervals.push(playAnimationInterval);
+    }
+}
 
-    let deadInterval = setInterval(() => {
+
+die() {
+  if (this.isDead) return;
+  this.isDead = true;
+  this.deadAnimationPlayed = true;
+
+  this.currentImage = 0;
+  clearInterval(this.animationInterval);
+
+  let deadInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_DEAD);
       if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
-        // Animation durchgelaufen
-        clearInterval(deadInterval);
-        this.startFalling(); // ⏩ Sofort nach der Animation fallen lassen
+          clearInterval(deadInterval);
+          this.startFalling();
       }
-    }, 100); // Animation schneller durchlaufen lassen
-  }
+  }, 100);
 
-  startFalling() {
-    let fallInterval = setInterval(() => {
-      this.y += 20; // ⏩ Erhöht die Fallgeschwindigkeit (von 10 auf 20)
+  // 🟢 Nur speichern, wenn `World.instance` existiert!
+  if (World.instance) {
+      World.instance.allIntervals.push(deadInterval);
+  }
+}
+
+
+startFalling() {
+  let fallInterval = setInterval(() => {
+      this.y += 20;
       if (this.y > 600) {
-        // Falls er aus dem Bildschirm fällt
-        clearInterval(fallInterval);
-        this.removeCharacter();
-
+          clearInterval(fallInterval);
+          this.removeCharacter();
       }
-    }, 30); // ⏩ Verringert das Intervall für flüssigeres und schnelleres Fallen
+  }, 30);
+
+  // 🟢 Nur speichern, wenn `World.instance` existiert!
+  if (World.instance) {
+      World.instance.allIntervals.push(fallInterval);
   }
+
+  let restartBtn = document.getElementById('restartButton');
+  restartBtn.classList.add('game-over-btn');
+  restartBtn.addEventListener('click', restartGame);
+}
+
 
   removeCharacter() {
     this.isRemoved = true; // Setzt eine Flag, damit keine Kollisionen mehr geprüft werden
