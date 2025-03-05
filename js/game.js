@@ -15,8 +15,7 @@ function startGame() {
   world = new World(canvas, keyboard);
 
   console.log('My character is', world.character);
-  console.log("World instance:", World.instance); // ✅ Prüfen, ob die Instanz existiert
-
+  console.log('World instance:', World.instance); // ✅ Prüfen, ob die Instanz existiert
 
   window.addEventListener('keydown', e => {
     if (e.keyCode == 39) {
@@ -53,22 +52,39 @@ function startGame() {
       keyboard.SPACE = false;
     }
   });
-
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  let restartBtn = document.getElementById("restartButton");
+document.addEventListener('DOMContentLoaded', () => {
+  let restartBtn = document.getElementById('restartButton');
   // Button beim Laden der Seite direkt anzeigen
-  restartBtn.classList.remove("hidden");
+  restartBtn.classList.remove('hidden');
   // Event-Listener zum Neustarten des Spiels
-  restartBtn.addEventListener("click", restartGame);
+  restartBtn.addEventListener('click', restartGame);
+});
 
-  let pauseBtn = document.getElementById("pauseButton");
+document.addEventListener('DOMContentLoaded', () => {
+  let pauseBtn = document.getElementById('pauseButton');
 
-    pauseBtn.addEventListener("click", () => {
-        World.instance.togglePause(); // 🎮 Pausieren oder Fortsetzen des Spiels
-        pauseBtn.innerText = World.instance.isPaused ? "Play" : "Pause"; // 🛠 Button-Text aktualisieren
-    });
+  pauseBtn.addEventListener('click', () => {
+    if (World.instance && typeof World.instance.togglePause === 'function') {
+      World.instance.togglePause();
+      pauseBtn.innerText = World.instance.isPaused ? 'Play' : 'Pause';
+    } else {
+      console.error(
+        'Fehler: `World.instance` oder `togglePause()` ist nicht definiert.'
+      );
+    }
+  });
+});
+
+document.addEventListener('keydown', event => {
+  if (event.code === 'Space' && World.instance?.isPaused) return; // 🛑 Keine Flaschen während der Pause werfen!
+  keyboard[event.code] = true;
+});
+
+document.addEventListener('keyup', event => {
+  if (event.code === 'Space' && World.instance?.isPaused) return;
+  keyboard[event.code] = false;
 });
 
 function restartGame() {

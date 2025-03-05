@@ -4,6 +4,9 @@ class Character extends MovableObject {
   height = 300;
   width = 130;
   speed = 10;
+  isDead = false;
+  isAnimating = false;
+
   IMAGES_STAND = [
     'img/2_character_pepe/1_idle/idle/I-1.png',
     'img/2_character_pepe/1_idle/idle/I-2.png',
@@ -17,12 +20,12 @@ class Character extends MovableObject {
     'img/2_character_pepe/1_idle/idle/I-10.png',
   ];
   IMAGES_WALKING = [
-    '/img/2_character_pepe/2_walk/W-21.png',
-    '/img/2_character_pepe/2_walk/W-22.png',
-    '/img/2_character_pepe/2_walk/W-23.png',
-    '/img/2_character_pepe/2_walk/W-24.png',
-    '/img/2_character_pepe/2_walk/W-25.png',
-    '/img/2_character_pepe/2_walk/W-26.png',
+    'img/2_character_pepe/2_walk/W-21.png',
+    'img/2_character_pepe/2_walk/W-22.png',
+    'img/2_character_pepe/2_walk/W-23.png',
+    'img/2_character_pepe/2_walk/W-24.png',
+    'img/2_character_pepe/2_walk/W-25.png',
+    'img/2_character_pepe/2_walk/W-26.png',
   ];
   IMAGES_JUMPING = [
     'img/2_character_pepe/3_jump/J-31.png',
@@ -50,114 +53,114 @@ class Character extends MovableObject {
     'img/2_character_pepe/4_hurt/H-43.png',
   ];
 
-  world;
-  animationSpeed;
-  lastInputTime = new Date().getTime();
-  isDead = false;
-  deadAnimationPlayed = false; // Flag, ob die Dead-Animation bereits abgespielt wurde
-
   constructor() {
-    super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
+    super().loadImage('img/2_character_pepe/2_walk/W-21.png');
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_STAND);
     this.applyGravity();
+
     this.gameOverImage = new Image();
     this.gameOverImage.src =
       'img/9_intro_outro_screens/game_over/oh no you lost!.png';
 
+    this.animationIntervals = [];
     this.animate();
   }
 
   animate() {
-    let moveCharacterInterval = setInterval(() => {
-        if (!this.isDead && this.world && World.instance && !World.instance.isPaused) {
-            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-                this.moveRight();
-                this.otherDirection = false;
-            }
-            if (this.world.keyboard.LEFT && this.x > -620) {
-                this.moveLeft();
-                this.otherDirection = true;
-            }
-            if (this.world.keyboard.UP && !this.isAboveGround()) {
-                this.jump();
-            }
+    if (this.isAnimating) return;
+    this.isAnimating = true;
 
-            this.world.camera_x = -this.x + 90;
+    let moveInterval = setInterval(() => {
+      if (!World.instance?.isPaused && !this.isDead && this.world) {
+        if (
+          this.world.keyboard.RIGHT &&
+          this.x < this.world.level.level_end_x
+        ) {
+          this.moveRight();
+          this.otherDirection = false;
         }
+        if (this.world.keyboard.LEFT && this.x > -620) {
+          this.moveLeft();
+          this.otherDirection = true;
+        }
+        if (this.world.keyboard.UP && !this.isAboveGround()) {
+          this.jump();
+        }
+
+        this.world.camera_x = -this.x + 90;
+      }
     }, 1000 / 60);
 
-    let playAnimationInterval = setInterval(() => {
-        if (this.isDead || (World.instance && World.instance.isPaused)) return; // 🛑 Stoppt Animationen während Pause
-
+    let animInterval = setInterval(() => {
+      if (!World.instance?.isPaused && !this.isDead) {
         if (this.isHurt()) {
-            this.playAnimation(this.IMAGES_HURT);
+          this.playAnimation(this.IMAGES_HURT);
         } else if (this.isAboveGround()) {
-            this.playAnimation(this.IMAGES_JUMPING);
-        } else if (
-            (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) &&
-            !this.isAboveGround()
-        ) {
-            this.playAnimation(this.IMAGES_WALKING);
+          this.playAnimation(this.IMAGES_JUMPING);
+        } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+          this.playAnimation(this.IMAGES_WALKING);
         } else {
-            this.playAnimation(this.IMAGES_STAND);
+          this.playAnimation(this.IMAGES_STAND);
         }
+      }
     }, 85);
 
-    if (World.instance) {
-        World.instance.allIntervals.push(moveCharacterInterval);
-        World.instance.allIntervals.push(playAnimationInterval);
-    }
-}
+    this.animationIntervals.push(moveInterval, animInterval);
+    if (World.instance)
+      World.instance.allIntervals.push(moveInterval, animInterval);
+  }
 
+  die() {
+    if (this.isDead) return;
+    this.isDead = true;
+    this.stopCurrentAnimation();
 
-die() {
-  if (this.isDead) return;
-  this.isDead = true;
-  this.deadAnimationPlayed = true;
-
-  this.currentImage = 0;
-  clearInterval(this.animationInterval);
-
-  let deadInterval = setInterval(() => {
-      this.playAnimation(this.IMAGES_DEAD);
+    let deadInterval = setInterval(() => {
+      if (!World.instance?.isPaused) {
+        this.playAnimation(this.IMAGES_DEAD);
+      }
       if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
-          clearInterval(deadInterval);
-          this.startFalling();
+        clearInterval(deadInterval);
+        this.startFalling();
+        this.showRestartButton();
       }
-  }, 100);
+    }, 100);
 
-  // 🟢 Nur speichern, wenn `World.instance` existiert!
-  if (World.instance) {
-      World.instance.allIntervals.push(deadInterval);
+    this.animationIntervals.push(deadInterval);
+    if (World.instance) World.instance.allIntervals.push(deadInterval);
   }
-}
 
-
-startFalling() {
-  let fallInterval = setInterval(() => {
-      this.y += 20;
-      if (this.y > 600) {
+  startFalling() {
+    let fallInterval = setInterval(() => {
+      if (!World.instance?.isPaused) {
+        this.y += 20;
+        if (this.y > 600) {
           clearInterval(fallInterval);
-          this.removeCharacter();
+        }
       }
-  }, 30);
+    }, 30);
 
-  // 🟢 Nur speichern, wenn `World.instance` existiert!
-  if (World.instance) {
-      World.instance.allIntervals.push(fallInterval);
+    this.animationIntervals.push(fallInterval);
+    if (World.instance) World.instance.allIntervals.push(fallInterval);
+    this.removeCharacter();
   }
 
-  let restartBtn = document.getElementById('restartButton');
-  restartBtn.classList.add('game-over-btn');
-  restartBtn.addEventListener('click', restartGame);
-}
+  stopCurrentAnimation() {
+    this.animationIntervals.forEach(interval => clearInterval(interval));
+    this.animationIntervals = [];
+  }
 
+  showRestartButton() {
+    let restartBtn = document.getElementById('restartButton');
+    restartBtn.classList.add('game-over-btn'); // 🟢 Größer & zentriert
+    restartBtn.addEventListener('click', restartGame);
+  }
 
   removeCharacter() {
-    this.isRemoved = true; // Setzt eine Flag, damit keine Kollisionen mehr geprüft werden
+    this.isRemoved = true; // Charakter aus dem Spiel entfernen
   }
 }

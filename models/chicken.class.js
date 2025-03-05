@@ -9,6 +9,8 @@ class Chicken extends MovableObject {
     'img/3_enemies_chicken/chicken_normal/1_walk/3_w.png',
   ];
   IMAGE_DEAD = 'img/3_enemies_chicken/chicken_normal/2_dead/dead.png';
+  animationInterval = null; // 🛑 Speichert das Intervall
+  moveInterval = null;
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -23,26 +25,30 @@ class Chicken extends MovableObject {
   }
 
   animate() {
-    let moveChickenInterval = setInterval(() => {
-        if (!this.isDead && World.instance && !World.instance.isPaused) {
-            this.moveLeft();
-        }
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+    }
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+    }
+
+    this.moveInterval = setInterval(() => {
+      if (!this.isDead && World.instance && !World.instance.isPaused) {
+        this.moveLeft();
+      }
     }, 1000 / 60);
 
-    let animationInterval = setInterval(() => {
-        if (!this.isDead && World.instance && !World.instance.isPaused) {
-            this.playAnimation(this.IMAGES_WALKING);
-        }
+    this.animationInterval = setInterval(() => {
+      if (!this.isDead && World.instance && !World.instance.isPaused) {
+        this.playAnimation(this.IMAGES_WALKING);
+      }
     }, 100);
 
-    // 🟢 Nur speichern, wenn `World.instance` existiert!
     if (World.instance) {
-        World.instance.allIntervals.push(moveChickenInterval);
-        World.instance.allIntervals.push(animationInterval);
+      World.instance.allIntervals.push(this.moveInterval);
+      World.instance.allIntervals.push(this.animationInterval);
     }
-}
-
-
+  }
 
   checkIfSquashed() {
     if (!this.world || this.isDead || !this.world.character.isColliding(this))

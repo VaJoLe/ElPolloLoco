@@ -2,6 +2,11 @@ class Endboss extends MovableObject {
   width = 300;
   height = 400;
   y = 50;
+  speed = 1;
+  lives = 4;
+  isDead = false;
+  isAnimating = false;
+
   IMAGES_WALKING = [
     'img/4_enemie_boss_chicken/1_walk/G1.png',
     'img/4_enemie_boss_chicken/1_walk/G2.png',
@@ -38,10 +43,6 @@ class Endboss extends MovableObject {
     'img/4_enemie_boss_chicken/5_dead/G25.png',
     'img/4_enemie_boss_chicken/5_dead/G26.png',
   ];
-  speed = 1;
-  hitEndboss = false; // Neuer Zustand für Treffer
-  lives = 4; // Der Endboss hat 4 Leben
-  isDead = false; // Neue Variable, um erneute Treffer nach dem Tod zu verhindern
 
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
@@ -50,85 +51,77 @@ class Endboss extends MovableObject {
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
-
     this.x = 2600;
 
+    this.animationIntervals = []; // Speichert alle Intervalle
     this.animate();
   }
 
+  animate() {
+    if (this.isAnimating) return;
+    this.isAnimating = true;
+
+    let interval = setInterval(() => {
+      if (!World.instance?.isPaused && !this.isDead) {
+        this.moveLeft();
+        this.playAnimation(this.IMAGES_WALKING);
+      }
+    }, 100);
+
+    this.animationIntervals.push(interval);
+    if (World.instance) World.instance.allIntervals.push(interval);
+  }
+
   gotHit() {
-    if (this.isDead) return; // Falls der Endboss schon tot ist, passiert nichts mehr
+    if (this.isDead) return;
 
     this.lives--;
     this.speed += 10;
 
     if (this.lives === 3) {
-      // Beim ersten Treffer wird die Alert-Animation abgespielt
-      this.playAlertAnimation();
+      this.changeAnimation(this.IMAGES_ALERT);
     } else if (this.lives === 2) {
-      // Attack-Animation läuft weiter
-      this.playAttackAnimation();
+      this.changeAnimation(this.IMAGES_ATTACK);
     } else if (this.lives === 1) {
-      // Hurt-Animation bei nur noch einem Leben
-      this.playHurtAnimation();
+      this.changeAnimation(this.IMAGES_HURT);
     } else {
-      // 0 Leben → Dead-Animation
       this.die();
     }
   }
 
-  playAlertAnimation() {
-    clearInterval(this.animationInterval);
-    this.alertInterval = setInterval(() => {
-      this.playAnimation(this.IMAGES_ALERT);
-    }, 100);
-  }
-
-  playAttackAnimation() {
-    clearInterval(this.animationInterval);
-    clearInterval(this.alertInterval);
-    this.animationInterval = setInterval(() => {
-      this.moveLeft(); // Endboss wird schneller
-
-      this.playAnimation(this.IMAGES_ATTACK);
-    }, 100);
-  }
-
-  playHurtAnimation() {
-    this.currentImage = 0;
-    clearInterval(this.animationInterval);
-    let hurtInterval = setInterval(() => {
-      this.playAnimation(this.IMAGES_HURT);
-      if (this.currentImage >= this.IMAGES_HURT.length) {
-        clearInterval(hurtInterval);
-        this.animationInterval = setInterval(() => {
-          this.playAnimation(this.IMAGES_HURT);
-        }, 100);
+  changeAnimation(images) {
+    this.stopCurrentAnimation();
+    let animInterval = setInterval(() => {
+      if (!World.instance?.isPaused && !this.isDead) {
+        this.playAnimation(images);
       }
     }, 100);
+
+    this.animationIntervals.push(animInterval);
+    if (World.instance) World.instance.allIntervals.push(animInterval);
   }
 
   die() {
-    if (this.isDead) return; // Falls die Animation schon lief, nicht nochmal abspielen
+    if (this.isDead) return;
     this.isDead = true;
+    this.stopCurrentAnimation();
 
-    this.currentImage = 0;
-    clearInterval(this.animationInterval);
     let deadInterval = setInterval(() => {
-      this.playAnimation(this.IMAGES_DEAD);
-      if (this.currentImage >= this.IMAGES_DEAD.length) {
+      if (!World.instance?.isPaused) {
+        this.playAnimation(this.IMAGES_DEAD);
+      }
+      if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
         clearInterval(deadInterval);
-        this.speed = 0; // Endboss bleibt stehen
+        this.speed = 0;
       }
     }, 100);
+
+    this.animationIntervals.push(deadInterval);
+    if (World.instance) World.instance.allIntervals.push(deadInterval);
   }
 
-  animate() {
-    this.animationInterval = setInterval(() => {
-      if (this.lives > 3) {
-        this.moveLeft();
-        this.playAnimation(this.IMAGES_WALKING);
-      }
-    }, 100);
+  stopCurrentAnimation() {
+    this.animationIntervals.forEach(interval => clearInterval(interval));
+    this.animationIntervals = [];
   }
 }

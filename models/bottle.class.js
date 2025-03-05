@@ -23,7 +23,7 @@ class Bottle extends MovableObject {
     }
 
     this.animationInterval = setInterval(() => {
-      if (World.instance && !World.instance.isPaused) { 
+      if (World.instance && !World.instance.isPaused) {
         this.playAnimation(this.IMAGES_BOTTLE);
       }
     }, 150);

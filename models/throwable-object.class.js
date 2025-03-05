@@ -22,39 +22,43 @@ class ThrowableObject extends MovableObject {
     this.height = 100;
     this.x = x;
     this.y = y;
-    this.endboss = new Endboss();
     this.hitEndboss = false;
     this.throw();
     //this.animate();
   }
 
   throw() {
+    if (this.throwInterval) {
+      clearInterval(this.throwInterval);
+    }
+
     this.speedY = 20;
     this.applyGravity();
 
-    let interval = setInterval(() => {
-      if (!this.hitEndboss) {
-        this.x += 15; // Flasche fliegt nach rechts
-        this.playAnimation(this.IMAGES_ROTATION);
+    this.throwInterval = setInterval(() => {
+      if (World.instance?.isPaused) return; // 🛑 Flasche bleibt in der Luft stehen, wenn pausiert
 
-        // Endboss dynamisch aus der Gegnerliste abrufen
-        let endboss = world.level.enemies.find(enemy => enemy instanceof Endboss);
+      this.x += 15;
+      this.playAnimation(this.IMAGES_ROTATION); // ✅ Rotation weiterlaufen lassen
 
-        // Prüfen, ob die Flasche in der Mitte des Endboss ist
-        if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
-          endboss.gotHit(); // Endboss-Status ändern
-          this.stopGravity();
-          clearInterval(interval); // Bewege die Flasche nicht weiter
-          this.splash();
-        }
+      let endboss = World.instance.level.enemies.find(
+        enemy => enemy instanceof Endboss
+      );
+
+      if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
+        endboss.gotHit();
+        this.stopGravity();
+        clearInterval(this.throwInterval);
+        this.splash();
       } else if (this.y > 400) {
-        clearInterval(interval); // Falls die Flasche den Boden erreicht
+        clearInterval(this.throwInterval);
       }
     }, 25);
-    World.instance.allIntervals.push(interval); // 🟢 Speichert das Intervall
 
-}
-
+    // if (World.instance) {
+    //   World.instance.allIntervals.push(this.throwInterval);
+    // }
+  }
 
   stopGravity() {
     this.speedY = 0;
