@@ -42,6 +42,7 @@ class World {
       if (this.isPaused) {
         bottle.stopGravity();
       } else {
+        bottle.acceleration = 2.5; // Standardwert wiederherstellen
         bottle.applyGravity();
       }
     });

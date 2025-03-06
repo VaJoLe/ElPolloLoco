@@ -14,6 +14,10 @@ function startGame() {
   canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
 
+    // Stelle sicher, dass die Clouds jetzt richtig animieren:
+    world.level.clouds.forEach(cloud => cloud.animate());
+
+
   console.log('My character is', world.character);
   console.log('World instance:', World.instance); // ✅ Prüfen, ob die Instanz existiert
 
