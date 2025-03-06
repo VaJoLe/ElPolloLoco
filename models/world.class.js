@@ -61,7 +61,15 @@ class World {
 
   resumeAllIntervals() {
     this.character.animate(); // ▶️ Startet den Charakter neu
-    this.level.enemies.forEach(enemy => enemy.animate()); // ▶️ Startet alle Gegner-Animationen neu
+    this.level.enemies.forEach(enemy => {
+      enemy.isAnimating = false; // Reset, damit neu gestartet werden kann
+      // Falls Endboss und in einem speziellen Zustand (also nicht im Standard-Walking)
+      if (enemy instanceof Endboss && enemy.currentAnimationImages !== enemy.IMAGES_WALKING) {
+        enemy.changeAnimation(enemy.currentAnimationImages);
+      } else {
+        enemy.animate();
+      }
+    });
     this.level.clouds.forEach(cloud => cloud.animate()); // ▶️ Startet alle Gegner-Animationen neu
     this.level.bottles.forEach(bottle => bottle.animate()); // ▶️ Startet alle Gegner-Animationen neu
     this.level.coins.forEach(coin => coin.animate()); // ▶️ Startet alle Gegner-Animationen neu

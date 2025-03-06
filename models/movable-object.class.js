@@ -41,8 +41,7 @@ class MovableObject extends DrawableObject {
     let path = images[i];
     this.img = this.imageCache[path];
     this.currentImage++;
-}
-
+  }
 
   jump() {
     this.speedY = 30;
@@ -58,17 +57,16 @@ class MovableObject extends DrawableObject {
     );
   }
 
+  isCollidingYOnly(obj1, obj2) {
+    let tolerance = 5; // Falls nötig, Toleranz für kleine Abweichungen
 
-isCollidingYOnly(obj1, obj2) {
-  let tolerance = 5; // Falls nötig, Toleranz für kleine Abweichungen
-
-  return (
+    return (
       obj1.x + obj1.width >= obj2.x && // Rechte Kante des Charakters trifft auf linke Kante der Münze
       obj1.x < obj2.x + obj2.width && // Sicherstellen, dass sich die Objekte wirklich überschneiden
       obj1.y <= obj2.y + tolerance && // Oberkante Charakter ≈ Oberkante Coin
       obj1.y + obj1.height >= obj2.y // Charakter berührt obere Kante der Münze
-  );
-}
+    );
+  }
 
   hit() {
     this.energy -= 2;
@@ -89,15 +87,14 @@ isCollidingYOnly(obj1, obj2) {
     return timepassed < 1;
   }
 
-  isCollectCoin(){
+  isCollectCoin() {
     this.coin += 20;
   }
 
-  isCollectBottle(){
-    if (this.bottle < 100) { // 100 entspricht 5 Flaschen (jede Flasche = 20)
+  isCollectBottle() {
+    if (this.bottle < 100) {
+      // 100 entspricht 5 Flaschen (jede Flasche = 20)
       this.bottle += 20;
-    } 
+    }
   }
-  
-  
 }

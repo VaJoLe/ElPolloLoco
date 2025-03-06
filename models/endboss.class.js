@@ -6,6 +6,8 @@ class Endboss extends MovableObject {
   lives = 4;
   isDead = false;
   isAnimating = false;
+  currentAnimationImages = this.IMAGES_WALKING; // Standard-Zustand
+
 
   IMAGES_WALKING = [
     'img/4_enemie_boss_chicken/1_walk/G1.png',
@@ -79,10 +81,13 @@ class Endboss extends MovableObject {
     this.speed += 10;
 
     if (this.lives === 3) {
+      this.currentAnimationImages = this.IMAGES_ALERT;
       this.changeAnimation(this.IMAGES_ALERT);
     } else if (this.lives === 2) {
+      this.currentAnimationImages = this.IMAGES_ATTACK;
       this.changeAnimation(this.IMAGES_ATTACK);
     } else if (this.lives === 1) {
+      this.currentAnimationImages = this.IMAGES_HURT;
       this.changeAnimation(this.IMAGES_HURT);
     } else {
       this.die();
@@ -91,14 +96,19 @@ class Endboss extends MovableObject {
 
   changeAnimation(images) {
     this.stopCurrentAnimation();
-    let animInterval = setInterval(() => {
-      if (!World.instance?.isPaused && !this.isDead) {
-        this.playAnimation(images);
+  let animInterval = setInterval(() => {
+    if (!World.instance?.isPaused && !this.isDead) {
+      // Wenn es sich um die Angriff-Animation handelt, bewegt sich der Endboss vorwärts
+      if (images === this.IMAGES_ATTACK) {
+        this.moveLeft();
       }
-    }, 100);
+      this.playAnimation(images);
+    }
+  }, 100);
 
     this.animationIntervals.push(animInterval);
     if (World.instance) World.instance.allIntervals.push(animInterval);
+      
   }
 
   die() {

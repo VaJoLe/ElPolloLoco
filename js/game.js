@@ -14,9 +14,8 @@ function startGame() {
   canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
 
-    // Stelle sicher, dass die Clouds jetzt richtig animieren:
-    world.level.clouds.forEach(cloud => cloud.animate());
-
+  // Stelle sicher, dass die Clouds jetzt richtig animieren:
+  world.level.clouds.forEach(cloud => cloud.animate());
 
   console.log('My character is', world.character);
   console.log('World instance:', World.instance); // ✅ Prüfen, ob die Instanz existiert
@@ -94,3 +93,23 @@ document.addEventListener('keyup', event => {
 function restartGame() {
   location.reload(); // Einfachste Methode: Seite neu laden
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  const fullscreenButton = document.getElementById("fullscreenButton");
+  const canvas = document.getElementById("canvas"); // Hole das Canvas-Element
+
+  if (fullscreenButton && canvas) {
+    fullscreenButton.addEventListener("click", function() {
+      if (canvas.requestFullscreen) {
+        canvas.requestFullscreen();
+      } else if (canvas.webkitRequestFullscreen) { // Für Safari
+        canvas.webkitRequestFullscreen();
+      } else if (canvas.msRequestFullscreen) { // Für IE11
+        canvas.msRequestFullscreen();
+      }
+    });
+  } else {
+    console.error("Button 'fullscreenButton' oder Canvas nicht gefunden!");
+  }
+});
+
