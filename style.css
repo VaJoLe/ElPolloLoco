@@ -2,12 +2,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    margin: 0;
     min-height: 100vh;
 
     background-image: url('img/background.jpg');
     background-position: center;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: 110% 100vh;
 }
 
 #start-screen {
@@ -25,10 +27,11 @@ body {
 }
 
 #start-button {
+    display: flex;
     position: absolute;
-    top: 500px;
-    padding: 15px 30px;
-    font-size: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: transparent;
     border: none;
     cursor: pointer;
@@ -39,11 +42,11 @@ canvas {
     /* Spiel erst verstecken */
 }
 
-.pos100{
+.pos100 {
     position: absolute;
     top: 100px;
     right: 50px;
-}  
+}
 
 .btn {
     padding: 10px 20px;
@@ -68,13 +71,13 @@ canvas {
     padding: 15px 30px;
 }
 
-.pos200{
+.pos200 {
     position: absolute;
     top: 200px;
     right: 50px;
 }
 
-#fullscreenButton{
+#fullscreenButton {
     background-color: transparent;
     border: none;
 }
@@ -87,6 +90,7 @@ canvas {
     justify-content: center;
     gap: 10px;
 }
+
 #mobile-controls button {
     width: 50px;
     height: 50px;

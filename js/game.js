@@ -13,7 +13,8 @@ function init() {
 function startGame() {
   canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
-  setupMobileControls();
+  // setupMobileControls();
+  setupButtons();
 
 
   // Stelle sicher, dass die Clouds jetzt richtig animieren:
@@ -21,66 +22,6 @@ function startGame() {
 
   console.log('My character is', world.character);
   console.log('World instance:', World.instance); // ✅ Prüfen, ob die Instanz existiert
-
-  window.addEventListener('keydown', e => {
-    if (e.keyCode == 39) {
-      keyboard.RIGHT = true;
-    }
-    if (e.keyCode == 37) {
-      keyboard.LEFT = true;
-    }
-    if (e.keyCode == 38) {
-      keyboard.UP = true;
-    }
-    if (e.keyCode == 40) {
-      keyboard.DOWN = true;
-    }
-    if (e.keyCode == 32) {
-      keyboard.SPACE = true;
-    }
-  });
-
-  window.addEventListener('keyup', e => {
-    if (e.keyCode == 39) {
-      keyboard.RIGHT = false;
-    }
-    if (e.keyCode == 37) {
-      keyboard.LEFT = false;
-    }
-    if (e.keyCode == 38) {
-      keyboard.UP = false;
-    }
-    if (e.keyCode == 40) {
-      keyboard.DOWN = false;
-    }
-    if (e.keyCode == 32) {
-      keyboard.SPACE = false;
-    }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  let restartBtn = document.getElementById('restartButton');
-  // Button beim Laden der Seite direkt anzeigen
-  restartBtn.classList.remove('hidden');
-  // Event-Listener zum Neustarten des Spiels
-  restartBtn.addEventListener('click', restartGame);
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  let pauseBtn = document.getElementById('pauseButton');
-
-  pauseBtn.addEventListener('click', () => {
-    if (World.instance && typeof World.instance.togglePause === 'function') {
-      World.instance.togglePause();
-      pauseBtn.innerText = World.instance.isPaused ? 'Play' : 'Pause';
-    } else {
-      console.error(
-        'Fehler: `World.instance` oder `togglePause()` ist nicht definiert.'
-      );
-    }
-  });
-});
 
 document.addEventListener('keydown', event => {
   if (event.code === 'Space' && World.instance?.isPaused) return; // 🛑 Keine Flaschen während der Pause werfen!
@@ -92,71 +33,54 @@ document.addEventListener('keyup', event => {
   keyboard[event.code] = false;
 });
 
-function restartGame() {
-  location.reload(); // Einfachste Methode: Seite neu laden
+
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  const fullscreenButton = document.getElementById("fullscreenButton");
-  const canvas = document.getElementById("canvas"); // Hole das Canvas-Element
+// ✅ Buttons sauber initialisieren
+function setupButtons() {
+  let restartBtn = document.getElementById("restartButton");
+  let pauseBtn = document.getElementById("pauseButton");
+  let fullscreenBtn = document.getElementById("fullscreenButton");
+  let pauseBtnImg = document.querySelector("#pauseButton img");
 
-  if (fullscreenButton && canvas) {
-    fullscreenButton.addEventListener("click", function() {
-      if (canvas.requestFullscreen) {
-        canvas.requestFullscreen();
-      } else if (canvas.webkitRequestFullscreen) { // Für Safari
-        canvas.webkitRequestFullscreen();
-      } else if (canvas.msRequestFullscreen) { // Für IE11
-        canvas.msRequestFullscreen();
-      }
-    });
-  } else {
-    console.error("Button 'fullscreenButton' oder Canvas nicht gefunden!");
-  }
-});
-
-function setupMobileControls() {
-  const leftBtn = document.getElementById('left-btn');
-  const rightBtn = document.getElementById('right-btn');
-  const jumpBtn = document.getElementById('jump-btn');
-  const throwBtn = document.getElementById('throw-btn');
-
-  function handleTouchStart(btn, key) {
-      btn.addEventListener('touchstart', (e) => {
-          e.preventDefault(); // Scrollen auf mobilen Geräten verhindern
-          keyboard[key] = true;
-      }, { passive: false }); // 👈 Scrollverhalten unterbinden
+  if (!restartBtn || !pauseBtn || !fullscreenBtn) {
+    console.error("Fehler: Mindestens ein Button nicht gefunden!");
+    return;
   }
 
-  function handleTouchEnd(btn, key) {
-      btn.addEventListener('touchend', (e) => {
-          e.preventDefault();
-          keyboard[key] = false;
-      }, { passive: false });
+  // 🟢 Restart-Button wieder sichtbar machen
+  restartBtn.classList.remove("hidden");
+  restartBtn.addEventListener("click", restartGame);
 
-      btn.addEventListener('touchcancel', (e) => {
-          e.preventDefault();
-          keyboard[key] = false;
-      }, { passive: false });
-  }
+  // 🟢 Pause-Button klickbar machen
+  pauseBtn.addEventListener("click", () => {
+    if (World.instance && typeof World.instance.togglePause === "function") {
+      World.instance.togglePause();
 
-  // Bewegungstasten
-  handleTouchStart(leftBtn, 'LEFT');
-  handleTouchEnd(leftBtn, 'LEFT');
+      // 🛑 Ändert das Bild im Button je nach Spielstatus
+      pauseBtnImg.src = World.instance.isPaused
+        ? "/buttons/play.svg" // Play-Icon
+        : "/buttons/break.svg"; // Pause-Icon
+    } else {
+      console.error("Fehler: `World.instance` oder `togglePause()` ist nicht definiert.");
+    }
+  });
 
-  handleTouchStart(rightBtn, 'RIGHT');
-  handleTouchEnd(rightBtn, 'RIGHT');
+  // 🟢 Fullscreen-Button aktivieren
+  fullscreenBtn.addEventListener("click", () => {
+    if (canvas.requestFullscreen) {
+      canvas.requestFullscreen();
+    } else if (canvas.webkitRequestFullscreen) {
+      canvas.webkitRequestFullscreen(); // Safari
+    } else if (canvas.msRequestFullscreen) {
+      canvas.msRequestFullscreen(); // IE11
+    }
+  });
+}
 
-  handleTouchStart(jumpBtn, 'UP');
-  handleTouchEnd(jumpBtn, 'UP');
-
-  // Flaschenwerfen (direkt aufrufen, nicht nur über keyboard.SPACE)
-  throwBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      if (World.instance) {
-          World.instance.throwBottle(); // 💡 Hier direkt aufrufen
-      }
-  }, { passive: false });
+// 🟢 Funktion zum Neustarten des Spiels
+function restartGame() {
+  location.reload(); // Einfachste Methode: Seite neu laden
 }
 
 
