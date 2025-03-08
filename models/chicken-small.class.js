@@ -20,7 +20,7 @@ class ChickenSmall extends MovableObject {
     this.imageCache[this.IMAGE_DEAD].src = this.IMAGE_DEAD;
 
     this.x = -200 + Math.random() * 2500;
-    this.speed = 0.2 + Math.random() * 0.5;
+    this.speed = 0.3 + Math.random() * 0.5;
 
     this.animate();
   }

@@ -13,6 +13,8 @@ function init() {
 function startGame() {
   canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
+  setupMobileControls();
+
 
   // Stelle sicher, dass die Clouds jetzt richtig animieren:
   world.level.clouds.forEach(cloud => cloud.animate());
@@ -112,4 +114,51 @@ document.addEventListener("DOMContentLoaded", function() {
     console.error("Button 'fullscreenButton' oder Canvas nicht gefunden!");
   }
 });
+
+function setupMobileControls() {
+  const leftBtn = document.getElementById('left-btn');
+  const rightBtn = document.getElementById('right-btn');
+  const jumpBtn = document.getElementById('jump-btn');
+  const throwBtn = document.getElementById('throw-btn');
+
+  function handleTouchStart(btn, key) {
+      btn.addEventListener('touchstart', (e) => {
+          e.preventDefault(); // Scrollen auf mobilen Geräten verhindern
+          keyboard[key] = true;
+      }, { passive: false }); // 👈 Scrollverhalten unterbinden
+  }
+
+  function handleTouchEnd(btn, key) {
+      btn.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          keyboard[key] = false;
+      }, { passive: false });
+
+      btn.addEventListener('touchcancel', (e) => {
+          e.preventDefault();
+          keyboard[key] = false;
+      }, { passive: false });
+  }
+
+  // Bewegungstasten
+  handleTouchStart(leftBtn, 'LEFT');
+  handleTouchEnd(leftBtn, 'LEFT');
+
+  handleTouchStart(rightBtn, 'RIGHT');
+  handleTouchEnd(rightBtn, 'RIGHT');
+
+  handleTouchStart(jumpBtn, 'UP');
+  handleTouchEnd(jumpBtn, 'UP');
+
+  // Flaschenwerfen (direkt aufrufen, nicht nur über keyboard.SPACE)
+  throwBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (World.instance) {
+          World.instance.throwBottle(); // 💡 Hier direkt aufrufen
+      }
+  }, { passive: false });
+}
+
+
+
 
