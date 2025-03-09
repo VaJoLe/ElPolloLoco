@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html translate="no">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -34,39 +34,66 @@
   <body onload="init()">
     <h1>El Pollo Loco</h1>
 
-    <canvas
-      id="canvas"
-      width="720px"
-      height="480px"
-    >
-  </canvas>
-  <div id="start-screen">
-    <img
-      src="img/9_intro_outro_screens/start/startscreen_1.png"
-      alt="Startbild"
-      id="start-image"
-    />
-    <button id="start-button"><img src="/buttons/play.svg" alt=""></button>
-  </div>
+    <div id="start-screen">
+      <img
+        src="img/9_intro_outro_screens/start/startscreen_1.png"
+        alt="Startbild"
+        id="start-image"
+      />
+      <button id="start-button">
+        <img
+          src="/buttons/play.svg"
+          alt=""
+        />
+      </button>
+    </div>
 
-  <button
-    id="restartButton"
-    class="pos100 btn hidden"
-  >
-    <img src="/buttons/restart.svg" alt="">
-  </button>
+    <div id="canvas-container">
 
-  <button id="pauseButton" class="btn pos200"><img src="/buttons/break.svg" alt=""></button>
 
-  <button id="fullscreenButton"><img src="/buttons/fullscreen.svg" alt=""></button>
+      <canvas
+        id="canvas"
+        width="720px"
+        height="480px"
+      ></canvas>
 
+      <button
+        id="restartButton"
+        class="topRight2 restartBtn hidden"
+      >
+        <img
+          src="/buttons/restart.svg"
+          alt=""
+        />
+      </button>
+
+      <button
+        id="pauseButton"
+        class="btn topRight1"
+      >
+        <img
+          src="/buttons/break.svg"
+          alt=""
+        />
+      </button>
+
+      <button
+        id="fullscreenButton"
+        class="btn bottomRight"
+      >
+        <img
+          src="/buttons/fullscreen.svg"
+          alt=""
+        />
+      </button>
+    </div>
+    
 
     <div id="mobile-controls">
       <button id="left-btn">←</button>
       <button id="right-btn">→</button>
       <button id="jump-btn">↑</button>
       <button id="throw-btn">⛽</button>
-  </div>
-  
+    </div>
   </body>
 </html>

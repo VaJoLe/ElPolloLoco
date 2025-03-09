@@ -5,9 +5,35 @@ let keyboard = new Keyboard();
 function init() {
   document.getElementById('start-button').addEventListener('click', () => {
     document.getElementById('start-screen').style.display = 'none'; // Startbildschirm ausblenden
-    document.getElementById('canvas').style.display = 'block'; // Spiel anzeigen
+    document.getElementById('canvas-container').style.display = 'block'; // Spiel anzeigen
     startGame(); // Spiel starten
   });
+
+  let fullscreenBtn = document.getElementById("fullscreenButton");
+
+
+  fullscreenBtn.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      // Falls noch kein Element im Fullscreen ist, wechsle in den Fullscreen-Modus:
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) { // IE11
+        document.documentElement.msRequestFullscreen();
+      }
+    } else {
+      // Falls bereits im Fullscreen, verlasse den Fullscreen-Modus:
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) { // Safari
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { // IE11
+        document.msExitFullscreen();
+      }
+    }
+  });
+
 }
 
 function startGame() {
@@ -40,11 +66,15 @@ document.addEventListener('keyup', event => {
 function setupButtons() {
   let restartBtn = document.getElementById("restartButton");
   let pauseBtn = document.getElementById("pauseButton");
-  let fullscreenBtn = document.getElementById("fullscreenButton");
-  let pauseBtnImg = document.querySelector("#pauseButton img");
+  let pauseBtnImg = pauseBtn.querySelector("img");
 
-  if (!restartBtn || !pauseBtn || !fullscreenBtn) {
+  if (!restartBtn || !pauseBtn) {
     console.error("Fehler: Mindestens ein Button nicht gefunden!");
+    return;
+  }
+
+  if (!pauseBtnImg) {
+    console.error("Fehler: Pause-Button enthält kein <img>-Element!");
     return;
   }
 
@@ -66,16 +96,8 @@ function setupButtons() {
     }
   });
 
-  // 🟢 Fullscreen-Button aktivieren
-  fullscreenBtn.addEventListener("click", () => {
-    if (canvas.requestFullscreen) {
-      canvas.requestFullscreen();
-    } else if (canvas.webkitRequestFullscreen) {
-      canvas.webkitRequestFullscreen(); // Safari
-    } else if (canvas.msRequestFullscreen) {
-      canvas.msRequestFullscreen(); // IE11
-    }
-  });
+  
+  
 }
 
 // 🟢 Funktion zum Neustarten des Spiels

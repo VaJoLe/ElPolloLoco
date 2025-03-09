@@ -28,9 +28,6 @@ class World {
   togglePause() {
     this.isPaused = !this.isPaused;
 
-    let pauseBtn = document.getElementById('pauseButton');
-    pauseBtn.innerText = this.isPaused ? 'Play' : 'Pause';
-
     if (this.isPaused) {
       this.stopAllIntervals(); // 🛑 Stoppt ALLE Bewegungsintervalle (Charakter & Gegner)
     } else {
