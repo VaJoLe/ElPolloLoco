@@ -95,6 +95,9 @@ class Endboss extends MovableObject {
   }
 
   changeAnimation(images) {
+    if (!images || images.length === 0) return; // 🛑 Verhindert den Fehler
+
+
     this.stopCurrentAnimation();
   let animInterval = setInterval(() => {
     if (!World.instance?.isPaused && !this.isDead) {

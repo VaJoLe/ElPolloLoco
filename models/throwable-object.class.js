@@ -32,7 +32,7 @@ class ThrowableObject extends MovableObject {
       clearInterval(this.throwInterval);
     }
 
-    this.speedY = 20;
+    this.speedY = 5;
     this.applyGravity();
 
     this.throwInterval = setInterval(() => {
@@ -40,10 +40,21 @@ class ThrowableObject extends MovableObject {
 
       this.x += 15;
       this.playAnimation(this.IMAGES_ROTATION); // ✅ Rotation weiterlaufen lassen
+      let enemies = World.instance.level.enemies; // Alle Gegner im Level holen
 
-      let endboss = World.instance.level.enemies.find(
-        enemy => enemy instanceof Endboss
-      );
+      enemies.forEach(enemy => {
+          if (enemy instanceof Chicken || enemy instanceof ChickenSmall) {
+              if (this.isColliding(enemy)) {
+                  enemy.die(); // 💀 Chicken stirbt
+                  this.stopGravity();
+                  clearInterval(this.throwInterval);
+                  this.splash();
+              }
+          }
+      });
+  
+      let endboss = enemies.find(enemy => enemy instanceof Endboss);
+  
 
       if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
         endboss.gotHit();

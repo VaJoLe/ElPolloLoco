@@ -97,7 +97,7 @@ class World {
         this.character.y + 100
       );
       this.throwableObjects.push(bottle);
-      this.character.bottle -= 20; // Eine Flasche weniger
+      this.character.bottle -= 10; // Eine Flasche weniger
       this.statusbarBottle.setPercentage(this.character.bottle); // Statusbar aktualisieren
     }
   }
