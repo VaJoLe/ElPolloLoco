@@ -32,7 +32,7 @@ class ThrowableObject extends MovableObject {
       clearInterval(this.throwInterval);
     }
 
-    this.speedY = 5;
+    this.speedY = 10;
     this.applyGravity();
 
     this.throwInterval = setInterval(() => {
@@ -77,6 +77,8 @@ class ThrowableObject extends MovableObject {
   }
 
   splash() {
+    soundManager.play('bottleBreakSound'); // Zerbrechender Flaschensound
+
     this.currentImage = 0; // Wichtig: Animation zurücksetzen!
 
     let splashAnimationInterval = setInterval(() => {

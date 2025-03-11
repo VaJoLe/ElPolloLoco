@@ -6,6 +6,23 @@ class Character extends MovableObject {
   speed = 10;
   isDead = false;
   isAnimating = false;
+  idleTime = 0;
+sleepTimeout = null;
+isSleeping = false;
+
+
+  IMAGES_SLEEP = [
+    'img/2_character_pepe/1_idle/long_idle/I-11.png',
+    'img/2_character_pepe/1_idle/long_idle/I-12.png',
+    'img/2_character_pepe/1_idle/long_idle/I-13.png',
+    'img/2_character_pepe/1_idle/long_idle/I-14.png',
+    'img/2_character_pepe/1_idle/long_idle/I-15.png',
+    'img/2_character_pepe/1_idle/long_idle/I-16.png',
+    'img/2_character_pepe/1_idle/long_idle/I-17.png',
+    'img/2_character_pepe/1_idle/long_idle/I-18.png',
+    'img/2_character_pepe/1_idle/long_idle/I-19.png',
+    'img/2_character_pepe/1_idle/long_idle/I-20.png'
+  ]
 
   IMAGES_STAND = [
     'img/2_character_pepe/1_idle/idle/I-1.png',
@@ -60,6 +77,7 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_STAND);
+    this.loadImages(this.IMAGES_SLEEP);
     this.applyGravity();
 
     this.gameOverImage = new Image();
@@ -76,6 +94,9 @@ class Character extends MovableObject {
 
     let moveInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead && this.world) {
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.UP) {
+          this.resetIdleTimer(); // Bewegung erkannt -> Timer zurücksetzen
+        }
         if (
           this.world.keyboard.RIGHT &&
           this.x < this.world.level.level_end_x
@@ -103,11 +124,15 @@ class Character extends MovableObject {
           this.playAnimation(this.IMAGES_JUMPING);
         } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
           this.playAnimation(this.IMAGES_WALKING);
+        } else if (this.isSleeping){
+          this.playAnimation(this.IMAGES_SLEEP);
         } else {
           this.playAnimation(this.IMAGES_STAND);
         }
       }
     }, 85);
+
+    this.startIdleTimer();
 
     this.animationIntervals.push(moveInterval, animInterval);
     if (World.instance)
@@ -163,4 +188,17 @@ class Character extends MovableObject {
   removeCharacter() {
     this.isRemoved = true; // Charakter aus dem Spiel entfernen
   }
+
+startIdleTimer() {
+  this.sleepTimeout = setTimeout(() => {
+      this.isSleeping = true;
+  }, 15000); // 15 Sekunden bis zur Schlafanimation
+}
+
+resetIdleTimer() {
+  clearTimeout(this.sleepTimeout);
+  this.isSleeping = false;
+  this.startIdleTimer();
+}
+
 }

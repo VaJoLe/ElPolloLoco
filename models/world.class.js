@@ -30,8 +30,11 @@ class World {
 
     if (this.isPaused) {
       this.stopAllIntervals(); // 🛑 Stoppt ALLE Bewegungsintervalle (Charakter & Gegner)
+      soundManager.toggleBackgroundMusic(true); // Hintergrundmusik stoppen
     } else {
       this.resumeAllIntervals(); // ▶️ Startet ALLE Bewegungsintervalle neu
+      soundManager.toggleBackgroundMusic(false); // Hintergrundmusik wieder starten
+
     }
 
     // 🛑 Flaschen anhalten (Schwerkraft deaktivieren)
@@ -99,6 +102,8 @@ class World {
       this.throwableObjects.push(bottle);
       this.character.bottle -= 10; // Eine Flasche weniger
       this.statusbarBottle.setPercentage(this.character.bottle); // Statusbar aktualisieren
+      soundManager.play('throwSound'); // Sound für das Werfen abspielen
+
     }
   }
 

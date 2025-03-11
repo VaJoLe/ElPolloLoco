@@ -3,9 +3,17 @@ let world;
 let keyboard = new Keyboard();
 
 function init() {
+  document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', () => {
+      soundManager.play('buttonClickSound'); // Button-Klick-Sound
+    });
+  });
+  
   document.getElementById('start-button').addEventListener('click', () => {
     document.getElementById('start-screen').style.display = 'none'; // Startbildschirm ausblenden
-    document.getElementById('canvas-container').style.display = 'block'; // Spiel anzeigen
+    document.getElementById('canvas-container').style.display = 'block';
+  initLevel();
+  // Spiel anzeigen
     startGame(); // Spiel starten
   });
 
@@ -39,6 +47,7 @@ function init() {
 function startGame() {
   canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
+  soundManager.play('backgroundMusic');
   // setupMobileControls();
   setupButtons();
 
@@ -59,6 +68,12 @@ document.addEventListener('keyup', event => {
   keyboard[event.code] = false;
 });
 
+window.addEventListener('keydown', () => {
+  if (world && world.character) {
+      world.character.resetIdleTimer();
+  }
+});
+
 
 }
 
@@ -67,6 +82,8 @@ function setupButtons() {
   let restartBtn = document.getElementById("restartButton");
   let pauseBtn = document.getElementById("pauseButton");
   let pauseBtnImg = pauseBtn.querySelector("img");
+  let muteIcon = document.getElementById('muteIcon');
+
 
   if (!restartBtn || !pauseBtn) {
     console.error("Fehler: Mindestens ein Button nicht gefunden!");
@@ -96,6 +113,18 @@ function setupButtons() {
     }
   });
 
+  muteButton.addEventListener('click', () => {
+    let muteIcon = document.getElementById('muteIcon');
+
+    soundManager.toggleMute(); // Schaltet den Ton um
+
+    if (soundManager.muted) {
+        muteIcon.src = "/buttons/mute.svg";  // Wechsel zu Mute-Icon
+    } else {
+        muteIcon.src = "/buttons/unmute.svg";  // Wechsel zu Unmute-Icon
+    }
+});
+
   
   
 }
@@ -104,7 +133,4 @@ function setupButtons() {
 function restartGame() {
   location.reload(); // Einfachste Methode: Seite neu laden
 }
-
-
-
 

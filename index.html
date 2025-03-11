@@ -2,15 +2,14 @@
 <html translate="no">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     <link
       rel="stylesheet"
       href="style.css"
     />
     <title>El Pollo Loco</title>
+    <script src="/models/sounds.class.js"></script>
     <script src="/models/drawable-object.class.js"></script>
     <script src="/models/movable-object.class.js"></script>
     <script src="/models/character.class.js"></script>
@@ -49,8 +48,6 @@
     </div>
 
     <div id="canvas-container">
-
-
       <canvas
         id="canvas"
         width="720px"
@@ -86,8 +83,28 @@
           alt=""
         />
       </button>
+
+      <button
+        id="muteButton"
+        class="btn muteBtn"
+      >
+        <img
+          id="muteIcon"
+          src="/buttons/unmute.svg"
+          alt="Unmute"
+        />
+      </button>
     </div>
-    
+
+    <div id="orientation-popup">
+      <div class="popup-content">
+          <p>Bitte drehe dein Gerät ins Querformat!</p>
+      </div>
+  </div>
+  
+
+</div>
+
 
     <div id="mobile-controls">
       <button id="left-btn">←</button>

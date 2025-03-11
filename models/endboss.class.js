@@ -2,7 +2,7 @@ class Endboss extends MovableObject {
   width = 300;
   height = 400;
   y = 50;
-  speed = 1;
+  speed = 50;
   lives = 4;
   isDead = false;
   isAnimating = false;
@@ -118,6 +118,9 @@ class Endboss extends MovableObject {
     if (this.isDead) return;
     this.isDead = true;
     this.stopCurrentAnimation();
+
+    soundManager.play('endbossDeadSound'); // Sound für den Tod des Endbosses
+
 
     let deadInterval = setInterval(() => {
       if (!World.instance?.isPaused) {

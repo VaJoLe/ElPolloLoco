@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'zabras';
+    src: url('/fonts/zabars.ttf') format('truetype');
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -11,10 +16,14 @@ body {
     background-repeat: no-repeat;
     background-size: 110% 100vh;
     position: relative;
+    font-family: 'zabras', Arial, Helvetica, sans-serif;
 }
 h1 {
     position: absolute;
-    top: 23%;
+    top: 20%;
+    font-size: 60px;
+    letter-spacing: 3px;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
 
 }
 
@@ -42,12 +51,16 @@ h1 {
 }
 
 #canvas-container {
+    width: 100vw;
+    height: 100vh;
+    max-width: 720px;
+    max-height: 480px;
+    aspect-ratio: 3 / 2; /* Stellt das richtige Seitenverhältnis sicher */
     display: none;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);    width: 720px; /* gleiche Größe wie dein Canvas */
-    height: 480px;
+    transform: translate(-50%, -50%);
 }
 
 canvas {
@@ -79,7 +92,7 @@ canvas {
 .restartBtn{
     position: absolute;
     top: 10px;
-    right: 70px;
+    right: 60px;
     width: 50px;
     height: 50px;
     background-color: transparent;
@@ -112,6 +125,11 @@ canvas {
     right: 10px;
 }
 
+.muteBtn{
+    top: 10px;
+    right: 110px;
+}
+
 #fullscreenButton {
     background-color: transparent;
     border: none;
@@ -134,8 +152,57 @@ canvas {
     cursor: pointer;
 }
 
+#orientation-popup {
+    display: none; /* Standardmäßig ausblenden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8); /* Dunkler Hintergrund */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 9999;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+
 @media (min-width: 768px) {
     #mobile-controls {
         display: none;
+    }
+}
+
+@media (max-width: 720px) {
+    #canvas-container {
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 720px) {
+    #orientation-popup {
+        display: flex; /* Zeigt das Pop-up an */
+    }
+
+    #canvas-container {
+        display: none; /* Versteckt das Spiel */
+    }
+}
+
+
+@media (max-height: 480px) {
+    #canvas-container {
+        height: 100vh;
+        width: auto;
     }
 }
