@@ -38,14 +38,14 @@ class SoundManager {
   mute() {
     this.muted = true;
     for (let key in this.sounds) {
-      this.sounds[key].volume = 0; // Statt pause() setzen wir die Lautstärke auf 0
+      this.sounds[key].volume = 0;
     }
   }
 
   unmute() {
     this.muted = false;
     for (let key in this.sounds) {
-      this.sounds[key].volume = 1; // Statt play() setzen wir die Lautstärke zurück
+      this.sounds[key].volume = 1;
     }
   }
 

@@ -3,7 +3,7 @@ class Bottle extends MovableObject {
   height = 100;
   y = 300;
   x = -400;
-  animationInterval = null; // 🛑 Speichert das aktuelle Intervall
+  animationInterval = null;
   IMAGES_BOTTLE = [
     'img/6_salsa_bottle/1_salsa_bottle_on_ground.png',
     'img/6_salsa_bottle/2_salsa_bottle_on_ground.png',
@@ -19,7 +19,7 @@ class Bottle extends MovableObject {
 
   animate() {
     if (this.animationInterval) {
-      clearInterval(this.animationInterval); // 🛑 Stoppt das alte Intervall, falls es existiert
+      clearInterval(this.animationInterval);
     }
 
     this.animationInterval = setInterval(() => {

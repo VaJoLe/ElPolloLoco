@@ -9,7 +9,7 @@ class Chicken extends MovableObject {
     'img/3_enemies_chicken/chicken_normal/1_walk/3_w.png',
   ];
   IMAGE_DEAD = 'img/3_enemies_chicken/chicken_normal/2_dead/dead.png';
-  animationInterval = null; // 🛑 Speichert das Intervall
+  animationInterval = null;
   moveInterval = null;
 
   constructor() {
@@ -41,7 +41,7 @@ class Chicken extends MovableObject {
     this.animationInterval = setInterval(() => {
       if (!this.isDead && World.instance && !World.instance.isPaused) {
         this.playAnimation(this.IMAGES_WALKING);
-      }  
+      }
     }, 100);
 
     if (World.instance) {
@@ -64,16 +64,16 @@ class Chicken extends MovableObject {
       this.width / 2 + 40;
 
     if (isAbove && isFalling && isCentered) {
-      soundManager.play('jumpOnChickenSound'); // Sound für das Springen auf ein Huhn
+      soundManager.play('jumpOnChickenSound');
       this.die();
-      char.speedY = 15; // Charakter springt leicht nach Zerquetschen
+      char.speedY = 15;
     }
   }
 
   die() {
     this.isDead = true;
     this.img = this.imageCache[this.IMAGE_DEAD];
-    this.speed = 0; // Stoppt Bewegung
+    this.speed = 0;
     this.y = 350;
   }
 }

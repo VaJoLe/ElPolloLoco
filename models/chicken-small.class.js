@@ -65,7 +65,7 @@ class ChickenSmall extends MovableObject {
       this.width / 2 + 30;
 
     if (isAbove && isFalling && isCentered) {
-      soundManager.play('jumpOnChickenSound'); // Sound für das Springen auf ein Huhn
+      soundManager.play('jumpOnChickenSound');
       this.die();
       char.speedY = 15;
     }

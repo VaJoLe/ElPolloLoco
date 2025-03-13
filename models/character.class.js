@@ -7,9 +7,8 @@ class Character extends MovableObject {
   isDead = false;
   isAnimating = false;
   idleTime = 0;
-sleepTimeout = null;
-isSleeping = false;
-
+  sleepTimeout = null;
+  isSleeping = false;
 
   IMAGES_SLEEP = [
     'img/2_character_pepe/1_idle/long_idle/I-11.png',
@@ -21,8 +20,8 @@ isSleeping = false;
     'img/2_character_pepe/1_idle/long_idle/I-17.png',
     'img/2_character_pepe/1_idle/long_idle/I-18.png',
     'img/2_character_pepe/1_idle/long_idle/I-19.png',
-    'img/2_character_pepe/1_idle/long_idle/I-20.png'
-  ]
+    'img/2_character_pepe/1_idle/long_idle/I-20.png',
+  ];
 
   IMAGES_STAND = [
     'img/2_character_pepe/1_idle/idle/I-1.png',
@@ -94,8 +93,12 @@ isSleeping = false;
 
     let moveInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead && this.world) {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.UP) {
-          this.resetIdleTimer(); // Bewegung erkannt -> Timer zurücksetzen
+        if (
+          this.world.keyboard.RIGHT ||
+          this.world.keyboard.LEFT ||
+          this.world.keyboard.UP
+        ) {
+          this.resetIdleTimer();
         }
         if (
           this.world.keyboard.RIGHT &&
@@ -124,7 +127,7 @@ isSleeping = false;
           this.playAnimation(this.IMAGES_JUMPING);
         } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
           this.playAnimation(this.IMAGES_WALKING);
-        } else if (this.isSleeping){
+        } else if (this.isSleeping) {
           this.playAnimation(this.IMAGES_SLEEP);
         } else {
           this.playAnimation(this.IMAGES_STAND);
@@ -181,24 +184,23 @@ isSleeping = false;
 
   showRestartButton() {
     let restartBtn = document.getElementById('restartButton');
-    restartBtn.classList.add('game-over-btn'); // 🟢 Größer & zentriert
+    restartBtn.classList.add('game-over-btn');
     restartBtn.addEventListener('click', restartGame);
   }
 
   removeCharacter() {
-    this.isRemoved = true; // Charakter aus dem Spiel entfernen
+    this.isRemoved = true;
   }
 
-startIdleTimer() {
-  this.sleepTimeout = setTimeout(() => {
+  startIdleTimer() {
+    this.sleepTimeout = setTimeout(() => {
       this.isSleeping = true;
-  }, 15000); // 15 Sekunden bis zur Schlafanimation
-}
+    }, 15000);
+  }
 
-resetIdleTimer() {
-  clearTimeout(this.sleepTimeout);
-  this.isSleeping = false;
-  this.startIdleTimer();
-}
-
+  resetIdleTimer() {
+    clearTimeout(this.sleepTimeout);
+    this.isSleeping = false;
+    this.startIdleTimer();
+  }
 }

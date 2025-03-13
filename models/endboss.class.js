@@ -2,12 +2,11 @@ class Endboss extends MovableObject {
   width = 300;
   height = 400;
   y = 50;
-  speed = 50;
+  speed = 1;
   lives = 4;
   isDead = false;
   isAnimating = false;
   currentAnimationImages = this.IMAGES_WALKING; // Standard-Zustand
-
 
   IMAGES_WALKING = [
     'img/4_enemie_boss_chicken/1_walk/G1.png',
@@ -95,23 +94,20 @@ class Endboss extends MovableObject {
   }
 
   changeAnimation(images) {
-    if (!images || images.length === 0) return; // 🛑 Verhindert den Fehler
-
+    if (!images || images.length === 0) return; 
 
     this.stopCurrentAnimation();
-  let animInterval = setInterval(() => {
-    if (!World.instance?.isPaused && !this.isDead) {
-      // Wenn es sich um die Angriff-Animation handelt, bewegt sich der Endboss vorwärts
-      if (images === this.IMAGES_ATTACK) {
-        this.moveLeft();
+    let animInterval = setInterval(() => {
+      if (!World.instance?.isPaused && !this.isDead) {
+        if (images === this.IMAGES_ATTACK) {
+          this.moveLeft();
+        }
+        this.playAnimation(images);
       }
-      this.playAnimation(images);
-    }
-  }, 100);
+    }, 100);
 
     this.animationIntervals.push(animInterval);
     if (World.instance) World.instance.allIntervals.push(animInterval);
-      
   }
 
   die() {
@@ -119,8 +115,7 @@ class Endboss extends MovableObject {
     this.isDead = true;
     this.stopCurrentAnimation();
 
-    soundManager.play('endbossDeadSound'); // Sound für den Tod des Endbosses
-
+    soundManager.play('endbossDeadSound'); 
 
     let deadInterval = setInterval(() => {
       if (!World.instance?.isPaused) {
