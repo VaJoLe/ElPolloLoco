@@ -1,7 +1,3 @@
-/**
- * Represents the game world, including the character, level, enemies, collectibles, and interactions.
- * Manages game logic such as collisions, animations, and user inputs.
- */
 class World {
   /**
    * The main character controlled by the player.
@@ -312,13 +308,106 @@ class World {
   }
 
   /**
-   * Draws the game content.
+   * Continuously renders the game by updating the canvas.
+   * Draws the game objects and overlays the game-over screen if the character is dead.
    */
   draw() {
     this.drawContent();
+
+    if (this.character.isDead) {
+      this.ctx.drawImage(this.character.gameOverImage, 0, 0, 720, 480);
+    }
+
     let self = this;
     requestAnimationFrame(function () {
       self.draw();
     });
+  }
+
+  /**
+   * Clears the canvas and redraws all game objects in the correct order.
+   * Handles background movement and character positioning.
+   */
+  drawContent() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.translate(this.camera_x, 0);
+    this.addObjectsToMap(this.level.backgroundObjects);
+    this.addObjectsToMap(this.level.clouds);
+    this.ctx.translate(-this.camera_x, 0);
+    this.addToMap(this.statusbarHealth);
+    this.addToMap(this.statusbarBottle);
+    this.addToMap(this.statusbarCoin);
+    this.ctx.translate(this.camera_x, 0);
+    this.addToMap(this.character);
+    this.addObjectsToMap(this.level.coins);
+    this.addObjectsToMap(this.level.bottles);
+    this.addObjectsToMap(this.level.enemies);
+    this.addObjectsToMap(this.throwableObjects);
+    this.ctx.translate(-this.camera_x, 0);
+  }
+
+  /**
+   * Loops through an array of game objects and adds each to the canvas.
+   * @param {Array} object - The array of objects to be drawn.
+   */
+  addObjectsToMap(object) {
+    object.forEach(o => {
+      this.addToMap(o);
+    });
+  }
+
+  /**
+   * Draws a single game object on the canvas.
+   * Handles image flipping for objects that move in the opposite direction.
+   * @param {MovableObject} mo - The game object to draw.
+   */
+  addToMap(mo) {
+    if (mo.otherDirection) {
+      this.flipImage(mo);
+    }
+
+    mo.draw(this.ctx);
+
+    mo.drawFrame(this.ctx);
+
+    if (mo.otherDirection) {
+      this.flipImageBack(mo);
+    }
+  }
+
+  /**
+   * Flips an image horizontally to create a mirrored effect.
+   * Used for objects that change direction.
+   * @param {MovableObject} mo - The game object to flip.
+   */
+  flipImage(mo) {
+    this.ctx.save();
+    this.ctx.translate(mo.width, 0);
+    this.ctx.scale(-1, 1);
+    mo.x = mo.x * -1;
+  }
+
+  /**
+   * Restores the original position after flipping an object.
+   * @param {MovableObject} mo - The game object to restore.
+   */
+  flipImageBack(mo) {
+    mo.x = mo.x * -1;
+    this.ctx.restore();
+  }
+
+  /**
+   * Stops all active intervals and removes event listeners.
+   * Destroys the game world instance.
+   */
+  destroy() {
+    this._destroyed = true;
+    this.stopAllIntervals();
+    if (this.boundKeyDown) {
+      document.removeEventListener('keydown', this.boundKeyDown);
+    }
+    if (this.boundKeyUp) {
+      document.removeEventListener('keyup', this.boundKeyUp);
+    }
   }
 }

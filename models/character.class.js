@@ -165,7 +165,8 @@ class Character extends MovableObject {
     this.applyGravity();
 
     this.gameOverImage = new Image();
-    this.gameOverImage.src = 'img/9_intro_outro_screens/game_over/oh no you lost!.png';
+    this.gameOverImage.src =
+      'img/9_intro_outro_screens/game_over/oh no you lost!.png';
 
     this.animationIntervals = [];
     this.animate();
@@ -190,10 +191,17 @@ class Character extends MovableObject {
   moveIntervalCharacter() {
     let moveInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead && this.world) {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.UP) {
+        if (
+          this.world.keyboard.RIGHT ||
+          this.world.keyboard.LEFT ||
+          this.world.keyboard.UP
+        ) {
           this.resetIdleTimer();
         }
-        if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+        if (
+          this.world.keyboard.RIGHT &&
+          this.x < this.world.level.level_end_x
+        ) {
           this.moveRight();
           this.otherDirection = false;
         }
@@ -235,12 +243,94 @@ class Character extends MovableObject {
   }
 
   /**
-   * Handles character death and triggers the appropriate animation.
+   * Handles the character's death.
+   * Stops the current animation and starts the death animation.
    */
   die() {
     if (this.isDead) return;
     this.isDead = true;
     this.stopCurrentAnimation();
+
+    let deadInterval = this.deadIntervalCharacter();
+
     soundManager.stop('backgroundMusic');
+
+    this.animationIntervals.push(deadInterval);
+    if (World.instance) World.instance.allIntervals.push(deadInterval);
+  }
+
+  /**
+   * Plays the death animation and triggers the falling motion after animation ends.
+   */
+  deadIntervalCharacter() {
+    setInterval(() => {
+      if (!World.instance?.isPaused) {
+        this.playAnimation(this.IMAGES_DEAD);
+      }
+      if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
+        clearInterval(this);
+        this.startFalling();
+        this.showRestartButton();
+      }
+    }, 100);
+  }
+
+  /**
+   * Makes the character fall after death until it disappears from the screen.
+   */
+  startFalling() {
+    let fallInterval = setInterval(() => {
+      if (!World.instance?.isPaused) {
+        this.y += 20;
+        if (this.y > 600) {
+          clearInterval(fallInterval);
+        }
+      }
+    }, 30);
+
+    this.animationIntervals.push(fallInterval);
+    if (World.instance) World.instance.allIntervals.push(fallInterval);
+    this.removeCharacter();
+  }
+
+  /**
+   * Stops all active animation intervals for the character.
+   */
+  stopCurrentAnimation() {
+    this.animationIntervals.forEach(interval => clearInterval(interval));
+    this.animationIntervals = [];
+  }
+
+  /**
+   * Displays the restart button when the game is over.
+   */
+  showRestartButton() {
+    let restartBtn = document.getElementById('restartButton');
+    restartBtn.classList.add('game-over-btn');
+  }
+
+  /**
+   * Removes the character from the game world after death.
+   */
+  removeCharacter() {
+    this.isRemoved = true;
+  }
+
+  /**
+   * Starts an idle timer that puts the character into sleep mode after 15 seconds of inactivity.
+   */
+  startIdleTimer() {
+    this.sleepTimeout = setTimeout(() => {
+      this.isSleeping = true;
+    }, 15000);
+  }
+
+  /**
+   * Resets the idle timer when the character moves, preventing sleep mode.
+   */
+  resetIdleTimer() {
+    clearTimeout(this.sleepTimeout);
+    this.isSleeping = false;
+    this.startIdleTimer();
   }
 }
