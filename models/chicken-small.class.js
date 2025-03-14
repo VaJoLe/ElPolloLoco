@@ -3,6 +3,8 @@ class ChickenSmall extends MovableObject {
   height = 60;
   y = 360;
   isDead = false;
+  isAnimating = false;
+
 
   IMAGES_WALKING = [
     'img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
@@ -22,10 +24,21 @@ class ChickenSmall extends MovableObject {
     this.x = -200 + Math.random() * 2500;
     this.speed = 0.3 + Math.random() * 0.5;
 
+    this.animationIntervals = []; // Speichert alle Intervalle
     this.animate();
   }
 
   animate() {
+    this.stopCurrentAnimation(); // Bevor neue Animation startet, alte beenden
+
+
+    if (this.isAnimating) {
+      console.log('Animation für diesen Gegner läuft bereits:', this);
+      return;  
+  }
+
+  this.isAnimating = true;
+
     if (this.moveInterval) {
       clearInterval(this.moveInterval);
     }
@@ -84,4 +97,10 @@ class ChickenSmall extends MovableObject {
     this.img = this.imageCache[this.IMAGE_DEAD];
     this.speed = 0;
   }
+
+  stopCurrentAnimation() {
+    this.animationIntervals.forEach(interval => clearInterval(interval));
+    this.animationIntervals = [];
+  }
+  
 }

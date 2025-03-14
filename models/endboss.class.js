@@ -59,8 +59,15 @@ class Endboss extends MovableObject {
   }
 
   animate() {
-    if (this.isAnimating) return;
+    this.stopCurrentAnimation();
+    if (this.isAnimating) {
+      console.log('Animation bereits aktiv für:', this);
+      return;  
+  }
+  
+  console.log('Starte neue Animation für:', this);
     this.isAnimating = true;
+
 
     let interval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead) {
@@ -133,7 +140,7 @@ class Endboss extends MovableObject {
 
         clearInterval(deadInterval);
       }
-    }, 150);
+    }, 100);
 
     this.animationIntervals.push(deadInterval);
     if (World.instance) World.instance.allIntervals.push(deadInterval);

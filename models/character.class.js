@@ -88,22 +88,25 @@ class Character extends MovableObject {
   }
 
   animate() {
-    if (this.isAnimating) return;
-    this.isAnimating = true;
+        this.stopCurrentAnimation(); // Stoppe vorherige Animationen
 
-    let moveInterval = this.moveIntervalCharacter();
+    if (this.isAnimating) {
+      console.log('Animation bereits aktiv für:', this);
+      return;  
+  }
+  
+  this.isAnimating = true;
+  console.log('Starte neue Animation für:', this);
 
-    let animInterval = this.animIntervalCharacter();
+this.moveIntervalCharacter();
+
+this.animIntervalCharacter();
 
     this.startIdleTimer();
-
-    this.animationIntervals.push(moveInterval, animInterval);
-    if (World.instance)
-      World.instance.allIntervals.push(moveInterval, animInterval);
   }
 
   moveIntervalCharacter() {
-    setInterval(() => {
+    let moveInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead && this.world) {
         if (
           this.world.keyboard.RIGHT ||
@@ -129,10 +132,13 @@ class Character extends MovableObject {
         this.world.camera_x = -this.x + 90;
       }
     }, 1000 / 60);
+    this.animationIntervals.push(moveInterval);  // <-- Speichert das Intervall, damit es später gestoppt werden kann
+    return moveInterval;  // <-- Gibt das Intervall zurück
+
   }
 
   animIntervalCharacter() {
-    setInterval(() => {
+    let animInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead) {
         if (this.isHurt()) {
           this.playAnimation(this.IMAGES_HURT);
@@ -147,6 +153,8 @@ class Character extends MovableObject {
         }
       }
     }, 85);
+    this.animationIntervals.push(animInterval);  // <-- Speichert das Intervall
+    return animInterval;  // <-- Gibt das Intervall zurück
   }
 
   die() {

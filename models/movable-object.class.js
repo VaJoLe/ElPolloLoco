@@ -95,4 +95,13 @@ class MovableObject extends DrawableObject {
       this.bottle += 20;
     }
   }
+
+  stopCurrentAnimation() {
+    console.log('Stoppe Animationen für:', this);
+    
+    this.animationIntervals.forEach(interval => clearInterval(interval));
+    this.animationIntervals = [];
+}
+
+
 }

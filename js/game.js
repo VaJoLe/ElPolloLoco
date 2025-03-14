@@ -84,7 +84,7 @@ function showMobileControlsHint() {
 
     setTimeout(() => {
       hint.classList.add('hidden');
-    }, 1000000);
+    }, 10000);
   }
 }
 

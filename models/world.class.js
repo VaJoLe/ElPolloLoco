@@ -55,32 +55,48 @@ class World {
   }
 
   stopAllIntervals() {
-    if (this.allIntervals) {
-      this.allIntervals.forEach(interval => clearInterval(interval));
-      this.allIntervals = [];
-    }
+    console.log('Stoppe alle Intervalle. Anzahl vorher: ', this.allIntervals.length);
+
+    this.allIntervals.forEach(interval => clearInterval(interval));
+    this.allIntervals = [];
+
     if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
+        cancelAnimationFrame(this.animationFrameId);
     }
-    console.log('Alle Intervalle und AnimationFrames gestoppt.');
-  }
+
+    console.log('Alle Intervalle gelöscht. Anzahl nachher: ', this.allIntervals.length);
+}
 
   resumeAllIntervals() {
+    // Nur starten, wenn KEINE Intervalle laufen!
+    if (this.allIntervals.length > 0) {
+      console.log('Es laufen bereits Intervalle. Kein erneutes Starten nötig.');
+      return;
+  }
+    this.character.stopCurrentAnimation(); // ALLE bestehenden Animationen stoppen
+    this.character.isAnimating = false; // Setze Animationsstatus zurück
     this.character.animate(); 
     this.level.enemies.forEach(enemy => {
-      enemy.isAnimating = false; 
-      if (
-        enemy instanceof Endboss &&
-        enemy.currentAnimationImages !== enemy.IMAGES_WALKING
-      ) {
-        enemy.changeAnimation(enemy.currentAnimationImages);
-      } else {
-        enemy.animate();
+      if (!enemy.isAnimating) { 
+        console.log('Starte Animation für Gegner:', enemy);
+
+        enemy.stopCurrentAnimation(); // ALTE Intervalle stoppen
+
+          enemy.isAnimating = false;
+          if (enemy instanceof Endboss && enemy.currentAnimationImages !== enemy.IMAGES_WALKING) {
+              enemy.changeAnimation(enemy.currentAnimationImages);
+          } else {
+              enemy.animate(); 
+          }
       }
-    });
+  });
     this.level.clouds.forEach(cloud => cloud.animate()); // ▶️ Startet alle Gegner-Animationen neu
     this.level.bottles.forEach(bottle => bottle.animate()); // ▶️ Startet alle Gegner-Animationen neu
     this.level.coins.forEach(coin => coin.animate()); // ▶️ Startet alle Gegner-Animationen neu
+
+    this.run(); // Starte die Bewegungsintervalle neu
+    this.character.resetIdleTimer(); // <-- Setzt den Idle-Timer zurück
+
     console.log('Alle Bewegungsintervalle wieder gestartet.');
   }
 
@@ -263,3 +279,4 @@ class World {
     console.log('Welt zerstört.');
   }
 }
+
