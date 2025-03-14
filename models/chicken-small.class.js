@@ -75,6 +75,7 @@ class ChickenSmall extends MovableObject {
     this.speed = 0.3 + Math.random() * 0.5; // Randomize speed for variety
 
     this.animationIntervals = [];
+    this.animate();
   }
 
   /**
