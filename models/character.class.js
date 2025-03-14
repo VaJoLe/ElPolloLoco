@@ -1,15 +1,72 @@
+/**
+ * Represents the main playable character in the game.
+ * Inherits from `MovableObject` and includes animations, movement, and interactions.
+ */
 class Character extends MovableObject {
+  /**
+   * The initial horizontal position of the character.
+   * @type {number}
+   */
   x = -620;
+
+  /**
+   * The initial vertical position of the character.
+   * @type {number}
+   */
   y = 130;
+
+  /**
+   * The height of the character.
+   * @type {number}
+   */
   height = 300;
+
+  /**
+   * The width of the character.
+   * @type {number}
+   */
   width = 130;
+
+  /**
+   * The movement speed of the character.
+   * @type {number}
+   */
   speed = 10;
+
+  /**
+   * Indicates whether the character is dead.
+   * @type {boolean}
+   */
   isDead = false;
+
+  /**
+   * Indicates whether the character's animations are active.
+   * @type {boolean}
+   */
   isAnimating = false;
+
+  /**
+   * Idle time counter to determine if the character should sleep.
+   * @type {number}
+   */
   idleTime = 0;
+
+  /**
+   * Timeout reference for sleep mode.
+   * @type {number|null}
+   */
   sleepTimeout = null;
+
+  /**
+   * Indicates whether the character is in sleep mode.
+   * @type {boolean}
+   */
   isSleeping = false;
 
+  /**
+   * Image set for sleep animation.
+   * @type {string[]}
+   */
   IMAGES_SLEEP = [
     'img/2_character_pepe/1_idle/long_idle/I-11.png',
     'img/2_character_pepe/1_idle/long_idle/I-12.png',
@@ -23,6 +80,10 @@ class Character extends MovableObject {
     'img/2_character_pepe/1_idle/long_idle/I-20.png',
   ];
 
+  /**
+   * Image set for standing animation.
+   * @type {string[]}
+   */
   IMAGES_STAND = [
     'img/2_character_pepe/1_idle/idle/I-1.png',
     'img/2_character_pepe/1_idle/idle/I-2.png',
@@ -35,6 +96,11 @@ class Character extends MovableObject {
     'img/2_character_pepe/1_idle/idle/I-9.png',
     'img/2_character_pepe/1_idle/idle/I-10.png',
   ];
+
+  /**
+   * Image set for walking animation.
+   * @type {string[]}
+   */
   IMAGES_WALKING = [
     'img/2_character_pepe/2_walk/W-21.png',
     'img/2_character_pepe/2_walk/W-22.png',
@@ -43,6 +109,11 @@ class Character extends MovableObject {
     'img/2_character_pepe/2_walk/W-25.png',
     'img/2_character_pepe/2_walk/W-26.png',
   ];
+
+  /**
+   * Image set for jumping animation.
+   * @type {string[]}
+   */
   IMAGES_JUMPING = [
     'img/2_character_pepe/3_jump/J-31.png',
     'img/2_character_pepe/3_jump/J-32.png',
@@ -54,6 +125,11 @@ class Character extends MovableObject {
     'img/2_character_pepe/3_jump/J-38.png',
     'img/2_character_pepe/3_jump/J-39.png',
   ];
+
+  /**
+   * Image set for the character's death animation.
+   * @type {string[]}
+   */
   IMAGES_DEAD = [
     'img/2_character_pepe/5_dead/D-51.png',
     'img/2_character_pepe/5_dead/D-52.png',
@@ -63,12 +139,21 @@ class Character extends MovableObject {
     'img/2_character_pepe/5_dead/D-56.png',
     'img/2_character_pepe/5_dead/D-57.png',
   ];
+
+  /**
+   * Image set for the character's hurt animation.
+   * @type {string[]}
+   */
   IMAGES_HURT = [
     'img/2_character_pepe/4_hurt/H-41.png',
     'img/2_character_pepe/4_hurt/H-42.png',
     'img/2_character_pepe/4_hurt/H-43.png',
   ];
 
+  /**
+   * Creates a new character instance.
+   * Loads images, applies gravity, and starts animations.
+   */
   constructor() {
     super().loadImage('img/2_character_pepe/2_walk/W-21.png');
     this.loadImages(this.IMAGES_WALKING);
@@ -80,45 +165,35 @@ class Character extends MovableObject {
     this.applyGravity();
 
     this.gameOverImage = new Image();
-    this.gameOverImage.src =
-      'img/9_intro_outro_screens/game_over/oh no you lost!.png';
+    this.gameOverImage.src = 'img/9_intro_outro_screens/game_over/oh no you lost!.png';
 
     this.animationIntervals = [];
     this.animate();
   }
 
+  /**
+   * Starts the character's animation, including movement and idle checks.
+   */
   animate() {
-        this.stopCurrentAnimation(); // Stoppe vorherige Animationen
+    this.stopCurrentAnimation();
+    if (this.isAnimating) return;
 
-    if (this.isAnimating) {
-      console.log('Animation bereits aktiv für:', this);
-      return;  
-  }
-  
-  this.isAnimating = true;
-  console.log('Starte neue Animation für:', this);
-
-this.moveIntervalCharacter();
-
-this.animIntervalCharacter();
-
+    this.isAnimating = true;
+    this.moveIntervalCharacter();
+    this.animIntervalCharacter();
     this.startIdleTimer();
   }
 
+  /**
+   * Controls character movement and updates camera position.
+   */
   moveIntervalCharacter() {
     let moveInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead && this.world) {
-        if (
-          this.world.keyboard.RIGHT ||
-          this.world.keyboard.LEFT ||
-          this.world.keyboard.UP
-        ) {
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.UP) {
           this.resetIdleTimer();
         }
-        if (
-          this.world.keyboard.RIGHT &&
-          this.x < this.world.level.level_end_x
-        ) {
+        if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
           this.moveRight();
           this.otherDirection = false;
         }
@@ -132,11 +207,13 @@ this.animIntervalCharacter();
         this.world.camera_x = -this.x + 90;
       }
     }, 1000 / 60);
-    this.animationIntervals.push(moveInterval);  // <-- Speichert das Intervall, damit es später gestoppt werden kann
-    return moveInterval;  // <-- Gibt das Intervall zurück
-
+    this.animationIntervals.push(moveInterval);
+    return moveInterval;
   }
 
+  /**
+   * Animates character actions based on state (walking, jumping, hurt, idle, or sleeping).
+   */
   animIntervalCharacter() {
     let animInterval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead) {
@@ -153,74 +230,17 @@ this.animIntervalCharacter();
         }
       }
     }, 85);
-    this.animationIntervals.push(animInterval);  // <-- Speichert das Intervall
-    return animInterval;  // <-- Gibt das Intervall zurück
+    this.animationIntervals.push(animInterval);
+    return animInterval;
   }
 
+  /**
+   * Handles character death and triggers the appropriate animation.
+   */
   die() {
     if (this.isDead) return;
     this.isDead = true;
     this.stopCurrentAnimation();
-
-    let deadInterval = this.deadIntervalCharacter();
-
     soundManager.stop('backgroundMusic');
-
-    this.animationIntervals.push(deadInterval);
-    if (World.instance) World.instance.allIntervals.push(deadInterval);
-  }
-
-  deadIntervalCharacter() {
-    setInterval(() => {
-      if (!World.instance?.isPaused) {
-        this.playAnimation(this.IMAGES_DEAD);
-      }
-      if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
-        clearInterval(this);
-        this.startFalling();
-        this.showRestartButton();
-      }
-    }, 100);
-  }
-
-  startFalling() {
-    let fallInterval = setInterval(() => {
-      if (!World.instance?.isPaused) {
-        this.y += 20;
-        if (this.y > 600) {
-          clearInterval(fallInterval);
-        }
-      }
-    }, 30);
-
-    this.animationIntervals.push(fallInterval);
-    if (World.instance) World.instance.allIntervals.push(fallInterval);
-    this.removeCharacter();
-  }
-
-  stopCurrentAnimation() {
-    this.animationIntervals.forEach(interval => clearInterval(interval));
-    this.animationIntervals = [];
-  }
-
-  showRestartButton() {
-    let restartBtn = document.getElementById('restartButton');
-    restartBtn.classList.add('game-over-btn');
-  }
-
-  removeCharacter() {
-    this.isRemoved = true;
-  }
-
-  startIdleTimer() {
-    this.sleepTimeout = setTimeout(() => {
-      this.isSleeping = true;
-    }, 15000);
-  }
-
-  resetIdleTimer() {
-    clearTimeout(this.sleepTimeout);
-    this.isSleeping = false;
-    this.startIdleTimer();
   }
 }

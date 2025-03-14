@@ -217,10 +217,10 @@ canvas {
     z-index: 101;
 }
 
-.mobile-hint-p{
-margin: 0;
-display: flex;
-align-items: center;
+.mobile-hint-p {
+    margin: 0;
+    display: flex;
+    align-items: center;
 }
 
 .salsa-bottle2 {

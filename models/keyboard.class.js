@@ -1,38 +1,88 @@
+/**
+ * Manages keyboard and touch controls for the game.
+ * Listens for keypress events and provides mobile touch controls.
+ */
 class Keyboard {
+  /**
+   * Indicates whether the left arrow key or left mobile button is pressed.
+   * @type {boolean}
+   */
   LEFT = false;
+
+  /**
+   * Indicates whether the right arrow key or right mobile button is pressed.
+   * @type {boolean}
+   */
   RIGHT = false;
+
+  /**
+   * Indicates whether the up arrow key or jump button is pressed.
+   * @type {boolean}
+   */
   UP = false;
+
+  /**
+   * Indicates whether the down arrow key is pressed.
+   * (Not used in some game versions.)
+   * @type {boolean}
+   */
   DOWN = false;
+
+  /**
+   * Indicates whether the space key is pressed.
+   * Typically used for throwing objects.
+   * @type {boolean}
+   */
   SPACE = false;
 
+  /**
+   * Creates a new Keyboard instance.
+   * Sets up event listeners for keyboard and mobile controls.
+   */
   constructor() {
     this.setupEventListeners();
     document.addEventListener('DOMContentLoaded', () => {
-      this.setupMobileControls(); // Warten, bis das DOM bereit ist
+      this.setupMobileControls();
     });
   }
 
+  /**
+   * Sets up event listeners for keyboard input.
+   * Detects when keys are pressed and released.
+   */
   setupEventListeners() {
     window.addEventListener('keydown', e => this.handleKeyDown(e));
     window.addEventListener('keyup', e => this.handleKeyUp(e));
   }
 
+  /**
+   * Handles keydown events and updates movement states.
+   * @param {KeyboardEvent} event - The keydown event.
+   */
   handleKeyDown(event) {
-    if (event.keyCode == 39) this.RIGHT = true;
-    if (event.keyCode == 37) this.LEFT = true;
-    if (event.keyCode == 38) this.UP = true;
-    if (event.keyCode == 40) this.DOWN = true;
-    if (event.keyCode == 32) this.SPACE = true;
+    if (event.keyCode === 39) this.RIGHT = true;
+    if (event.keyCode === 37) this.LEFT = true;
+    if (event.keyCode === 38) this.UP = true;
+    if (event.keyCode === 40) this.DOWN = true;
+    if (event.keyCode === 32) this.SPACE = true;
   }
 
+  /**
+   * Handles keyup events and updates movement states.
+   * @param {KeyboardEvent} event - The keyup event.
+   */
   handleKeyUp(event) {
-    if (event.keyCode == 39) this.RIGHT = false;
-    if (event.keyCode == 37) this.LEFT = false;
-    if (event.keyCode == 38) this.UP = false;
-    if (event.keyCode == 40) this.DOWN = false;
-    if (event.keyCode == 32) this.SPACE = false;
+    if (event.keyCode === 39) this.RIGHT = false;
+    if (event.keyCode === 37) this.LEFT = false;
+    if (event.keyCode === 38) this.UP = false;
+    if (event.keyCode === 40) this.DOWN = false;
+    if (event.keyCode === 32) this.SPACE = false;
   }
 
+  /**
+   * Sets up touch controls for mobile devices.
+   * Maps touch events to the same movement states as keyboard keys.
+   */
   setupMobileControls() {
     this.leftButton();
     this.rightButton();
@@ -40,6 +90,10 @@ class Keyboard {
     this.throwButton();
   }
 
+  /**
+   * Configures the left movement button for touch controls.
+   * Listens for `touchstart` and `touchend` events.
+   */
   leftButton() {
     const leftBtn = document.getElementById('left-btn');
     leftBtn.addEventListener(
@@ -54,6 +108,10 @@ class Keyboard {
     );
   }
 
+  /**
+   * Configures the right movement button for touch controls.
+   * Listens for `touchstart` and `touchend` events.
+   */
   rightButton() {
     const rightBtn = document.getElementById('right-btn');
     rightBtn.addEventListener(
@@ -68,22 +126,30 @@ class Keyboard {
     );
   }
 
+  /**
+   * Configures the jump button for touch controls.
+   * Listens for `touchstart` and `touchend` events.
+   */
   jumpButton() {
     const jumpBtn = document.getElementById('jump-btn');
-
     jumpBtn.addEventListener(
       'touchstart',
       this.handleTouchStart.bind(this, 'UP'),
       { passive: false }
     );
-    jumpBtn.addEventListener('touchend', this.handleTouchEnd.bind(this, 'UP'), {
-      passive: false,
-    });
+    jumpBtn.addEventListener(
+      'touchend',
+      this.handleTouchEnd.bind(this, 'UP'),
+      { passive: false }
+    );
   }
 
+  /**
+   * Configures the throw button for touch controls.
+   * Triggers the bottle-throwing action in the game world.
+   */
   throwButton() {
     const throwBtn = document.getElementById('throw-btn');
-
     throwBtn.addEventListener(
       'touchstart',
       e => {
@@ -96,11 +162,21 @@ class Keyboard {
     );
   }
 
+  /**
+   * Handles the start of a touch event for a movement button.
+   * @param {string} key - The key state to update (`LEFT`, `RIGHT`, `UP`).
+   * @param {TouchEvent} event - The touch event.
+   */
   handleTouchStart(key, event) {
     event.preventDefault();
     this[key] = true;
   }
 
+  /**
+   * Handles the end of a touch event for a movement button.
+   * @param {string} key - The key state to update (`LEFT`, `RIGHT`, `UP`).
+   * @param {TouchEvent} event - The touch event.
+   */
   handleTouchEnd(key, event) {
     event.preventDefault();
     this[key] = false;

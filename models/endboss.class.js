@@ -1,19 +1,73 @@
+/**
+ * Represents the final boss enemy in the game.
+ * The Endboss moves, attacks, and reacts to hits with different animations.
+ * Inherits from `MovableObject`.
+ */
 class Endboss extends MovableObject {
+  /**
+   * The width of the Endboss.
+   * @type {number}
+   */
   width = 300;
-  height = 400;
-  y = 50;
-  speed = 1;
-  lives = 4;
-  isDead = false;
-  isAnimating = false;
-  currentAnimationImages = this.IMAGES_WALKING; // Standard-Zustand
 
+  /**
+   * The height of the Endboss.
+   * @type {number}
+   */
+  height = 400;
+
+  /**
+   * The initial vertical position of the Endboss.
+   * @type {number}
+   */
+  y = 50;
+
+  /**
+   * The movement speed of the Endboss.
+   * @type {number}
+   */
+  speed = 1;
+
+  /**
+   * The number of lives the Endboss has.
+   * @type {number}
+   */
+  lives = 4;
+
+  /**
+   * Indicates whether the Endboss is dead.
+   * @type {boolean}
+   */
+  isDead = false;
+
+  /**
+   * Indicates whether the Endboss's animation is active.
+   * @type {boolean}
+   */
+  isAnimating = false;
+
+  /**
+   * Stores the current animation images based on the Endboss's state.
+   * @type {string[]}
+   */
+  currentAnimationImages = this.IMAGES_WALKING;
+
+  /**
+   * Image paths for the walking animation.
+   * @type {string[]}
+   */
   IMAGES_WALKING = [
     'img/4_enemie_boss_chicken/1_walk/G1.png',
     'img/4_enemie_boss_chicken/1_walk/G2.png',
     'img/4_enemie_boss_chicken/1_walk/G3.png',
     'img/4_enemie_boss_chicken/1_walk/G4.png',
   ];
+
+  /**
+   * Image paths for the alert animation.
+   * This animation is triggered when the Endboss takes the first hit.
+   * @type {string[]}
+   */
   IMAGES_ALERT = [
     'img/4_enemie_boss_chicken/2_alert/G5.png',
     'img/4_enemie_boss_chicken/2_alert/G6.png',
@@ -24,6 +78,12 @@ class Endboss extends MovableObject {
     'img/4_enemie_boss_chicken/2_alert/G11.png',
     'img/4_enemie_boss_chicken/2_alert/G12.png',
   ];
+
+  /**
+   * Image paths for the attack animation.
+   * This animation is triggered when the Endboss becomes more aggressive.
+   * @type {string[]}
+   */
   IMAGES_ATTACK = [
     'img/4_enemie_boss_chicken/3_attack/G13.png',
     'img/4_enemie_boss_chicken/3_attack/G14.png',
@@ -34,17 +94,31 @@ class Endboss extends MovableObject {
     'img/4_enemie_boss_chicken/3_attack/G19.png',
     'img/4_enemie_boss_chicken/3_attack/G20.png',
   ];
+
+  /**
+   * Image paths for the hurt animation.
+   * This animation is triggered when the Endboss is close to defeat.
+   * @type {string[]}
+   */
   IMAGES_HURT = [
     'img/4_enemie_boss_chicken/4_hurt/G21.png',
     'img/4_enemie_boss_chicken/4_hurt/G22.png',
     'img/4_enemie_boss_chicken/4_hurt/G23.png',
   ];
+
+  /**
+   * Image paths for the death animation.
+   * @type {string[]}
+   */
   IMAGES_DEAD = [
     'img/4_enemie_boss_chicken/5_dead/G24.png',
     'img/4_enemie_boss_chicken/5_dead/G25.png',
     'img/4_enemie_boss_chicken/5_dead/G26.png',
   ];
 
+  /**
+   * Creates a new Endboss instance and loads animations.
+   */
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
@@ -54,20 +128,18 @@ class Endboss extends MovableObject {
     this.loadImages(this.IMAGES_DEAD);
     this.x = 2600;
 
-    this.animationIntervals = []; // Speichert alle Intervalle
+    this.animationIntervals = [];
     this.animate();
   }
 
+  /**
+   * Starts the walking animation for the Endboss.
+   */
   animate() {
     this.stopCurrentAnimation();
-    if (this.isAnimating) {
-      console.log('Animation bereits aktiv für:', this);
-      return;  
-  }
-  
-  console.log('Starte neue Animation für:', this);
-    this.isAnimating = true;
+    if (this.isAnimating) return;
 
+    this.isAnimating = true;
 
     let interval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead) {
@@ -80,6 +152,10 @@ class Endboss extends MovableObject {
     if (World.instance) World.instance.allIntervals.push(interval);
   }
 
+  /**
+   * Handles the logic when the Endboss is hit.
+   * Changes animation and increases speed as health decreases.
+   */
   gotHit() {
     if (this.isDead) return;
 
@@ -100,6 +176,10 @@ class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Changes the animation of the Endboss to the specified set of images.
+   * @param {string[]} images - The new animation images.
+   */
   changeAnimation(images) {
     if (!images || images.length === 0) return;
 
@@ -117,6 +197,10 @@ class Endboss extends MovableObject {
     if (World.instance) World.instance.allIntervals.push(animInterval);
   }
 
+  /**
+   * Triggers the death sequence of the Endboss.
+   * Stops all current animations and plays the death animation.
+   */
   die() {
     if (this.isDead) return;
     this.isDead = true;
@@ -128,16 +212,18 @@ class Endboss extends MovableObject {
     soundManager.stop('backgroundMusic');
   }
 
+  /**
+   * Plays the Endboss's death animation.
+   * Stops the animation once the last frame is reached.
+   */
   deadIntervalEndboss() {
-    this.currentImage = 0; // Animation von vorne starten
+    this.currentImage = 0;
     let deadInterval = setInterval(() => {
       if (!World.instance?.isPaused) {
         this.playAnimation(this.IMAGES_DEAD);
-        console.log('Aktuelles Bild:', this.currentImage);
       }
       if (this.currentImage >= this.IMAGES_DEAD.length) {
-        this.currentImage = this.IMAGES_DEAD.length; // Letztes Bild fixieren
-
+        this.currentImage = this.IMAGES_DEAD.length;
         clearInterval(deadInterval);
       }
     }, 100);
@@ -146,6 +232,9 @@ class Endboss extends MovableObject {
     if (World.instance) World.instance.allIntervals.push(deadInterval);
   }
 
+  /**
+   * Stops all current animation intervals.
+   */
   stopCurrentAnimation() {
     this.animationIntervals.forEach(interval => clearInterval(interval));
     this.animationIntervals = [];
