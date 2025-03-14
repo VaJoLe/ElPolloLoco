@@ -7,14 +7,14 @@ class Keyboard {
 
   constructor() {
     this.setupEventListeners();
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener('DOMContentLoaded', () => {
       this.setupMobileControls(); // Warten, bis das DOM bereit ist
-    });  
+    });
   }
 
   setupEventListeners() {
-    window.addEventListener('keydown', (e) => this.handleKeyDown(e));
-    window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+    window.addEventListener('keydown', e => this.handleKeyDown(e));
+    window.addEventListener('keyup', e => this.handleKeyUp(e));
   }
 
   handleKeyDown(event) {
@@ -34,27 +34,66 @@ class Keyboard {
   }
 
   setupMobileControls() {
+    this.leftButton();
+    this.rightButton();
+    this.jumpButton();
+    this.throwButton();
+  }
+
+  leftButton() {
     const leftBtn = document.getElementById('left-btn');
+    leftBtn.addEventListener(
+      'touchstart',
+      this.handleTouchStart.bind(this, 'LEFT'),
+      { passive: false }
+    );
+    leftBtn.addEventListener(
+      'touchend',
+      this.handleTouchEnd.bind(this, 'LEFT'),
+      { passive: false }
+    );
+  }
+
+  rightButton() {
     const rightBtn = document.getElementById('right-btn');
+    rightBtn.addEventListener(
+      'touchstart',
+      this.handleTouchStart.bind(this, 'RIGHT'),
+      { passive: false }
+    );
+    rightBtn.addEventListener(
+      'touchend',
+      this.handleTouchEnd.bind(this, 'RIGHT'),
+      { passive: false }
+    );
+  }
+
+  jumpButton() {
     const jumpBtn = document.getElementById('jump-btn');
+
+    jumpBtn.addEventListener(
+      'touchstart',
+      this.handleTouchStart.bind(this, 'UP'),
+      { passive: false }
+    );
+    jumpBtn.addEventListener('touchend', this.handleTouchEnd.bind(this, 'UP'), {
+      passive: false,
+    });
+  }
+
+  throwButton() {
     const throwBtn = document.getElementById('throw-btn');
 
-    // 💡 Nutze `.bind(this)`, um das richtige `this` in den Event-Handlern zu behalten
-    leftBtn.addEventListener('touchstart', this.handleTouchStart.bind(this, 'LEFT'), { passive: false });
-    leftBtn.addEventListener('touchend', this.handleTouchEnd.bind(this, 'LEFT'), { passive: false });
-
-    rightBtn.addEventListener('touchstart', this.handleTouchStart.bind(this, 'RIGHT'), { passive: false });
-    rightBtn.addEventListener('touchend', this.handleTouchEnd.bind(this, 'RIGHT'), { passive: false });
-
-    jumpBtn.addEventListener('touchstart', this.handleTouchStart.bind(this, 'UP'), { passive: false });
-    jumpBtn.addEventListener('touchend', this.handleTouchEnd.bind(this, 'UP'), { passive: false });
-
-    throwBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      if (World.instance) {
-        World.instance.throwBottle();
-      }
-    }, { passive: false });
+    throwBtn.addEventListener(
+      'touchstart',
+      e => {
+        e.preventDefault();
+        if (World.instance) {
+          World.instance.throwBottle();
+        }
+      },
+      { passive: false }
+    );
   }
 
   handleTouchStart(key, event) {

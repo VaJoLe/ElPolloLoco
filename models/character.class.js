@@ -91,7 +91,19 @@ class Character extends MovableObject {
     if (this.isAnimating) return;
     this.isAnimating = true;
 
-    let moveInterval = setInterval(() => {
+    let moveInterval = this.moveIntervalCharacter();
+
+    let animInterval = this.animIntervalCharacter();
+
+    this.startIdleTimer();
+
+    this.animationIntervals.push(moveInterval, animInterval);
+    if (World.instance)
+      World.instance.allIntervals.push(moveInterval, animInterval);
+  }
+
+  moveIntervalCharacter() {
+    setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead && this.world) {
         if (
           this.world.keyboard.RIGHT ||
@@ -114,12 +126,13 @@ class Character extends MovableObject {
         if (this.world.keyboard.UP && !this.isAboveGround()) {
           this.jump();
         }
-
         this.world.camera_x = -this.x + 90;
       }
     }, 1000 / 60);
+  }
 
-    let animInterval = setInterval(() => {
+  animIntervalCharacter() {
+    setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead) {
         if (this.isHurt()) {
           this.playAnimation(this.IMAGES_HURT);
@@ -134,12 +147,6 @@ class Character extends MovableObject {
         }
       }
     }, 85);
-
-    this.startIdleTimer();
-
-    this.animationIntervals.push(moveInterval, animInterval);
-    if (World.instance)
-      World.instance.allIntervals.push(moveInterval, animInterval);
   }
 
   die() {
@@ -147,19 +154,25 @@ class Character extends MovableObject {
     this.isDead = true;
     this.stopCurrentAnimation();
 
-    let deadInterval = setInterval(() => {
+    let deadInterval = this.deadIntervalCharacter();
+
+    soundManager.stop('backgroundMusic');
+
+    this.animationIntervals.push(deadInterval);
+    if (World.instance) World.instance.allIntervals.push(deadInterval);
+  }
+
+  deadIntervalCharacter() {
+    setInterval(() => {
       if (!World.instance?.isPaused) {
         this.playAnimation(this.IMAGES_DEAD);
       }
       if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
-        clearInterval(deadInterval);
+        clearInterval(this);
         this.startFalling();
         this.showRestartButton();
       }
     }, 100);
-
-    this.animationIntervals.push(deadInterval);
-    if (World.instance) World.instance.allIntervals.push(deadInterval);
   }
 
   startFalling() {
@@ -185,7 +198,6 @@ class Character extends MovableObject {
   showRestartButton() {
     let restartBtn = document.getElementById('restartButton');
     restartBtn.classList.add('game-over-btn');
-    restartBtn.addEventListener('click', restartGame);
   }
 
   removeCharacter() {

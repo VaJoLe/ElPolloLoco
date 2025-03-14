@@ -94,7 +94,7 @@ class Endboss extends MovableObject {
   }
 
   changeAnimation(images) {
-    if (!images || images.length === 0) return; 
+    if (!images || images.length === 0) return;
 
     this.stopCurrentAnimation();
     let animInterval = setInterval(() => {
@@ -115,17 +115,25 @@ class Endboss extends MovableObject {
     this.isDead = true;
     this.stopCurrentAnimation();
 
-    soundManager.play('endbossDeadSound'); 
+    soundManager.play('endbossDeadSound');
 
+    this.deadIntervalEndboss();
+    soundManager.stop('backgroundMusic');
+  }
+
+  deadIntervalEndboss() {
+    this.currentImage = 0; // Animation von vorne starten
     let deadInterval = setInterval(() => {
       if (!World.instance?.isPaused) {
         this.playAnimation(this.IMAGES_DEAD);
+        console.log('Aktuelles Bild:', this.currentImage);
       }
-      if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
+      if (this.currentImage >= this.IMAGES_DEAD.length) {
+        this.currentImage = this.IMAGES_DEAD.length; // Letztes Bild fixieren
+
         clearInterval(deadInterval);
-        this.speed = 0;
       }
-    }, 100);
+    }, 150);
 
     this.animationIntervals.push(deadInterval);
     if (World.instance) World.instance.allIntervals.push(deadInterval);

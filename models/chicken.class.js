@@ -32,22 +32,30 @@ class Chicken extends MovableObject {
       clearInterval(this.animationInterval);
     }
 
-    this.moveInterval = setInterval(() => {
-      if (!this.isDead && World.instance && !World.instance.isPaused) {
-        this.moveLeft();
-      }
-    }, 1000 / 60);
+    this.moveInterval = this.moveIntervalChicken();
 
-    this.animationInterval = setInterval(() => {
-      if (!this.isDead && World.instance && !World.instance.isPaused) {
-        this.playAnimation(this.IMAGES_WALKING);
-      }
-    }, 100);
+    this.animationInterval = this.animationIntervalChicken();
 
     if (World.instance) {
       World.instance.allIntervals.push(this.moveInterval);
       World.instance.allIntervals.push(this.animationInterval);
     }
+  }
+
+  moveIntervalChicken() {
+    setInterval(() => {
+      if (!this.isDead && World.instance && !World.instance.isPaused) {
+        this.moveLeft();
+      }
+    }, 1000 / 60);
+  }
+
+  animationIntervalChicken() {
+    setInterval(() => {
+      if (!this.isDead && World.instance && !World.instance.isPaused) {
+        this.playAnimation(this.IMAGES_WALKING);
+      }
+    }, 100);
   }
 
   checkIfSquashed() {

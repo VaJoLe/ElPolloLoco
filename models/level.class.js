@@ -1,5 +1,5 @@
 class Level {
-  //character;
+  character;
   enemies;
   clouds;
   backgroundObjects;

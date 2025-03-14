@@ -1,136 +1,106 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let gameManager = null;
 
-function init() {
-  document.querySelectorAll('button').forEach(button => {
-    button.addEventListener('click', () => {
-      soundManager.play('buttonClickSound'); // Button-Klick-Sound
-    });
-  });
-  
-  document.getElementById('start-button').addEventListener('click', () => {
-    document.getElementById('start-screen').style.display = 'none'; // Startbildschirm ausblenden
-    document.getElementById('canvas-container').style.display = 'block';
-  initLevel();
-  // Spiel anzeigen
-    startGame(); // Spiel starten
-  });
-
-  let fullscreenBtn = document.getElementById("fullscreenButton");
-
-
-  fullscreenBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-      // Falls noch kein Element im Fullscreen ist, wechsle in den Fullscreen-Modus:
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) { // Safari
-        document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.msRequestFullscreen) { // IE11
-        document.documentElement.msRequestFullscreen();
-      }
-    } else {
-      // Falls bereits im Fullscreen, verlasse den Fullscreen-Modus:
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) { // Safari
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) { // IE11
-        document.msExitFullscreen();
-      }
-    }
-  });
-
+function buttonSound() {
+  soundManager.play('buttonClickSound');
 }
 
-function startGame() {
-  canvas = document.getElementById('canvas');
-  world = new World(canvas, keyboard);
-  soundManager.play('backgroundMusic');
-  // setupMobileControls();
-  setupButtons();
+function startButton() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('canvas-container').style.display = 'block';
+  gameManager = new GameManager();
+  gameManager.startGame();
+}
 
+function restartButton() {
+  if (gameManager) {
+    document.getElementById('restartButton').classList.remove('hidden');
+    gameManager.restartGame();
+  }
+}
 
-  // Stelle sicher, dass die Clouds jetzt richtig animieren:
-  world.level.clouds.forEach(cloud => cloud.animate());
+function fullscreenButton() {
+  if (!document.fullscreenElement) {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+      document.documentElement.msRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+}
 
-  console.log('My character is', world.character);
-  console.log('World instance:', World.instance); // ✅ Prüfen, ob die Instanz existiert
+function checkOrientation() {
+  let popup = document.getElementById('orientation-popup');
+  let canvasContainer = document.getElementById('canvas-container');
 
-document.addEventListener('keydown', event => {
-  if (event.code === 'Space' && World.instance?.isPaused) return; // 🛑 Keine Flaschen während der Pause werfen!
-  keyboard[event.code] = true;
-});
+  if (window.innerHeight > window.innerWidth && window.innerWidth < 720) {
+    popup.style.display = 'flex';
+    canvasContainer.style.display = 'none';
+  } else {
+    popup.style.display = 'none';
+    canvasContainer.style.display = 'block';
+  }
+}
 
-document.addEventListener('keyup', event => {
-  if (event.code === 'Space' && World.instance?.isPaused) return;
-  keyboard[event.code] = false;
-});
+function onMuteClick() {
+  soundManager.toggleMute();
 
-window.addEventListener('keydown', () => {
-  if (world && world.character) {
-      world.character.resetIdleTimer();
+  muteIcon.src = soundManager.muted ? 'buttons/mute.svg' : 'buttons/unmute.svg';
+}
+
+function onPauseClick() {
+  const pauseBtn = document.getElementById('pauseButton');
+  const pauseBtnImg = pauseBtn.querySelector('img');
+
+  if (World.instance && typeof World.instance.togglePause === 'function') {
+    World.instance.togglePause();
+
+    pauseBtnImg.src = World.instance.isPaused
+      ? 'buttons/play.svg'
+      : 'buttons/break.svg';
+  } else {
+    console.error('Fehler: World.instance oder togglePause() nicht definiert.');
+  }
+}
+
+function showMobileControlsHint() {
+  let hint = document.getElementById('mobile-controls-hint');
+  if (!hint) return;
+
+  if (window.innerWidth <= 762) {
+    hint.classList.remove('hidden');
+
+    setTimeout(() => {
+      hint.classList.add('hidden');
+    }, 1000000);
+  }
+}
+
+function clearAllIntervals() {
+  const highestId = setInterval(() => {}, 1000);
+  for (let i = 0; i <= highestId; i++) {
+    clearInterval(i);
+  }
+  console.log('Alle Intervalle wurden gelöscht.');
+}
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth <= 762) {
+    showMobileControlsHint();
   }
 });
 
-
-}
-
-// ✅ Buttons sauber initialisieren
-function setupButtons() {
-  let restartBtn = document.getElementById("restartButton");
-  let pauseBtn = document.getElementById("pauseButton");
-  let pauseBtnImg = pauseBtn.querySelector("img");
-  let muteIcon = document.getElementById('muteIcon');
-
-
-  if (!restartBtn || !pauseBtn) {
-    console.error("Fehler: Mindestens ein Button nicht gefunden!");
-    return;
-  }
-
-  if (!pauseBtnImg) {
-    console.error("Fehler: Pause-Button enthält kein <img>-Element!");
-    return;
-  }
-
-  // 🟢 Restart-Button wieder sichtbar machen
-  restartBtn.classList.remove("hidden");
-  restartBtn.addEventListener("click", restartGame);
-
-  // 🟢 Pause-Button klickbar machen
-  pauseBtn.addEventListener("click", () => {
-    if (World.instance && typeof World.instance.togglePause === "function") {
-      World.instance.togglePause();
-
-      // 🛑 Ändert das Bild im Button je nach Spielstatus
-      pauseBtnImg.src = World.instance.isPaused
-        ? "/buttons/play.svg" // Play-Icon
-        : "/buttons/break.svg"; // Pause-Icon
-    } else {
-      console.error("Fehler: `World.instance` oder `togglePause()` ist nicht definiert.");
-    }
-  });
-
-  muteButton.addEventListener('click', () => {
-    let muteIcon = document.getElementById('muteIcon');
-
-    soundManager.toggleMute(); // Schaltet den Ton um
-
-    if (soundManager.muted) {
-        muteIcon.src = "/buttons/mute.svg";  // Wechsel zu Mute-Icon
-    } else {
-        muteIcon.src = "/buttons/unmute.svg";  // Wechsel zu Unmute-Icon
-    }
-});
-
-  
-  
-}
-
-// 🟢 Funktion zum Neustarten des Spiels
-function restartGame() {
-  location.reload(); // Einfachste Methode: Seite neu laden
-}
-
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('load', checkOrientation);

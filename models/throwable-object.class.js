@@ -43,18 +43,17 @@ class ThrowableObject extends MovableObject {
       let enemies = World.instance.level.enemies; // Alle Gegner im Level holen
 
       enemies.forEach(enemy => {
-          if (enemy instanceof Chicken || enemy instanceof ChickenSmall) {
-              if (this.isColliding(enemy)) {
-                  enemy.die(); // 💀 Chicken stirbt
-                  this.stopGravity();
-                  clearInterval(this.throwInterval);
-                  this.splash();
-              }
+        if (enemy instanceof Chicken || enemy instanceof ChickenSmall) {
+          if (this.isColliding(enemy)) {
+            enemy.die(); // 💀 Chicken stirbt
+            this.stopGravity();
+            clearInterval(this.throwInterval);
+            this.splash();
           }
+        }
       });
-  
+
       let endboss = enemies.find(enemy => enemy instanceof Endboss);
-  
 
       if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
         endboss.gotHit();
@@ -66,9 +65,9 @@ class ThrowableObject extends MovableObject {
       }
     }, 25);
 
-    // if (World.instance) {
-    //   World.instance.allIntervals.push(this.throwInterval);
-    // }
+    if (World.instance) {
+      World.instance.allIntervals.push(this.throwInterval);
+    }
   }
 
   stopGravity() {
@@ -78,19 +77,21 @@ class ThrowableObject extends MovableObject {
 
   splash() {
     soundManager.play('bottleBreakSound'); // Zerbrechender Flaschensound
-
-    this.currentImage = 0; // Wichtig: Animation zurücksetzen!
-
+  
+    this.currentImage = 0; // Animation zurücksetzen
+  
     let splashAnimationInterval = setInterval(() => {
-      this.playAnimation(this.IMAGES_SPLASH); // Nutzt die vorhandene Methode
-
+      this.playAnimation(this.IMAGES_SPLASH); // Splash-Animation abspielen
+  
       // Prüfe, ob die Animation am Ende ist:
       if (this.currentImage >= this.IMAGES_SPLASH.length) {
         clearInterval(splashAnimationInterval); // Stoppt die Animation
-        world.throwableObjects = world.throwableObjects.filter(
+        // Verwende World.instance anstelle von "world":
+        World.instance.throwableObjects = World.instance.throwableObjects.filter(
           obj => obj !== this
-        ); // Entfernen
+        );
       }
     }, 100);
   }
+  
 }
