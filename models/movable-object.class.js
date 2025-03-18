@@ -4,8 +4,8 @@
  */
 class MovableObject extends DrawableObject {
   /**
- * Global variables for the movableobjects.
- */
+   * Global variables for the movableobjects.
+   */
   speed = 0.2;
   otherDirection = false;
   speedY = 0;
@@ -81,10 +81,11 @@ class MovableObject extends DrawableObject {
    * @returns {boolean} True if a collision is detected, otherwise false.
    */
   isColliding(obj) {
+    let collisionTolerance = 30;
     return (
-      this.x + this.width > obj.x &&
+      this.x + this.width - collisionTolerance > obj.x &&
       this.y + this.height > obj.y &&
-      this.x < obj.x + obj.width &&
+      this.x + collisionTolerance < obj.x + obj.width &&
       this.y < obj.y + obj.height
     );
   }
@@ -109,12 +110,15 @@ class MovableObject extends DrawableObject {
    * Reduces the object's energy when hit.
    * If energy reaches zero, it stays at zero.
    */
-  hit() {
-    this.energy -= 2;
+  hit(energy) {
+    let now = new Date().getTime();
+    if (now - this.lastHit > 500) {
+      soundManager.play('hit');
+      this.lastHit = now;
+    }
+    this.energy -= energy;
     if (this.energy < 0) {
       this.energy = 0;
-    } else {
-      this.lastHit = new Date().getTime();
     }
   }
 

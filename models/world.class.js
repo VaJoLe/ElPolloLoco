@@ -50,14 +50,17 @@ class World {
     if (this.isPaused) {
       this.stopAllIntervals();
       soundManager.toggleBackgroundMusic(true);
-    } else {
+      soundManager.toggleSleepSound(true);
       this.resumeAllIntervals();
       soundManager.toggleBackgroundMusic(false);
+      soundManager.toggleSleepSound(false);
+      if (!soundManager.muted) {
+        soundManager.play('backgroundMusic');
+      }
     }
-
     this.pauseThrowableObjects();
-    this.pauseCoins(); // Hier Coins pausieren
-    this.pauseClouds(); // Hier Coins pausieren
+    this.pauseCoins();
+    this.pauseClouds();
   }
 
   /**
@@ -80,7 +83,6 @@ class World {
   stopAllIntervals() {
     this.allIntervals.forEach(interval => clearInterval(interval));
     this.allIntervals = [];
-
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
@@ -149,7 +151,6 @@ class World {
   setupKeyboardListener() {
     this.boundKeyDown = this.onKeyDown.bind(this);
     this.boundKeyUp = this.onKeyUp.bind(this);
-
     document.addEventListener('keydown', this.boundKeyDown);
     document.addEventListener('keyup', this.boundKeyUp);
   }
@@ -159,7 +160,6 @@ class World {
    */
   throwBottle() {
     if (this.isPaused || this.character.isDead) return;
-
     if (this.character.bottle > 0) {
       let bottle = new ThrowableObject(
         this.character.x + 100,
@@ -189,7 +189,7 @@ class World {
       this.checkCollisions();
       this.collectCoins();
       this.collectBottles();
-    }, 50);
+    }, 20);
     this.allIntervals.push(intervalId);
   }
 
@@ -213,18 +213,40 @@ class World {
    */
   checkCollisions() {
     if (!this.character || this.character.isRemoved) return;
-
     this.level.enemies.forEach(enemy => {
       if (!enemy.isDead && this.character.isColliding(enemy)) {
-        this.character.hit();
-        this.statusbarHealth.setPercentage(this.character.energy);
-
-        if (this.character.energy <= 0) {
-          this.character.die();
+        if (enemy instanceof Endboss) {
+          this.endbossCollisionRequest();
+        } else {
+          this.chickenCollisionRequest();
         }
       }
     });
   }
+
+  /**
+ * Handles a collision between the character and the Endboss.
+ */
+endbossCollisionRequest() {
+  let damage = 20; 
+  this.character.hit(damage);
+  this.statusbarHealth.setPercentage(this.character.energy);
+  if (this.character.energy <= 0) {
+    this.character.die();
+  }
+}
+
+/**
+* Handles a collision between the character and a regular enemy (e.g., Chickens).
+*/
+chickenCollisionRequest() {
+  let damage = 1; 
+  this.character.hit(damage);
+  this.statusbarHealth.setPercentage(this.character.energy);
+  if (this.character.energy <= 0) {
+    this.character.die();
+  }
+}
 
   /**
    * Handles coin collection.
@@ -256,15 +278,12 @@ class World {
 
   /**
    * Continuously renders the game by updating the canvas.
-   * Draws the game objects and overlays the game-over screen if the character is dead.
    */
   draw() {
     this.drawContent();
-
     if (this.character.isDead) {
       this.ctx.drawImage(this.character.gameOverImage, 0, 0, 720, 480);
     }
-
     let self = this;
     requestAnimationFrame(function () {
       self.draw();
@@ -273,7 +292,6 @@ class World {
 
   /**
    * Clears the canvas and redraws all game objects in the correct order.
-   * Handles background movement and character positioning.
    */
   drawContent() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -304,7 +322,6 @@ class World {
   }
 
   /**
-   * Draws a single game object on the canvas.
    * Handles image flipping for objects that move in the opposite direction.
    * @param {MovableObject} mo - The game object to draw.
    */
@@ -321,7 +338,6 @@ class World {
 
   /**
    * Flips an image horizontally to create a mirrored effect.
-   * Used for objects that change direction.
    * @param {MovableObject} mo - The game object to flip.
    */
   flipImage(mo) {

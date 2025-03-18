@@ -88,17 +88,12 @@ class GameManager {
    */
   restartGame() {
     this.destroyGame();
-
     let oldCanvas = document.getElementById('canvas');
     if (oldCanvas) {
       oldCanvas.remove();
     }
-
     this.newCanvas();
-
     this.resetButtons();
-
-    soundManager.stop('backgroundMusic');
     const muteIcon = document.getElementById('muteIcon');
     if (muteIcon) {
       muteIcon.src = soundManager.muted
@@ -132,7 +127,6 @@ class GameManager {
   resetButtons() {
     let restartBtn = document.getElementById('gameOverRestartButton');
     if (restartBtn) restartBtn.classList.add('hidden');
-
     let pauseBtn = document.getElementById('pauseButton');
     if (pauseBtn && pauseBtn.querySelector('img')) {
       pauseBtn.querySelector('img').src = 'buttons/break.svg';

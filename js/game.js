@@ -34,6 +34,7 @@ function goToHomeScreen() {
     document.getElementById('canvas-container').style.display = 'none';
     document.getElementById('start-screen').style.display = 'block';
     document.getElementById('menuContainer').classList.add('hidden');
+    soundManager.stop('backgroundMusic');
   }
 }
 
@@ -60,13 +61,7 @@ function restartGameWithoutStartScreen() {
  */
 function fullscreenButton() {
   if (!document.fullscreenElement) {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.documentElement.webkitRequestFullscreen) {
-      document.documentElement.webkitRequestFullscreen();
-    } else if (document.documentElement.msRequestFullscreen) {
-      document.documentElement.msRequestFullscreen();
-    }
+    fullScreenRequest();
   } else {
     if (document.exitFullscreen) {
       document.exitFullscreen();
@@ -79,19 +74,40 @@ function fullscreenButton() {
 }
 
 /**
+ * Requests fullscreen mode for the document.
+ * Supports different browser implementations for fullscreen requests.
+ */
+function fullScreenRequest() {
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen();
+  } else if (document.documentElement.webkitRequestFullscreen) {
+    document.documentElement.webkitRequestFullscreen();
+  } else if (document.documentElement.msRequestFullscreen) {
+    document.documentElement.msRequestFullscreen();
+  }
+}
+
+/**
  * Checks the screen orientation and displays a popup if the device is in portrait mode.
- * Hides or shows the game canvas accordingly.
+ * Hides or shows the game canvas and start screen accordingly.
  */
 function checkOrientation() {
   let popup = document.getElementById('orientation-popup');
   let canvasContainer = document.getElementById('canvas-container');
+  let startScreen = document.getElementById('start-screen');
 
-  if (window.innerHeight > window.innerWidth && window.innerWidth < 720) {
+  if (window.innerHeight > window.innerWidth && window.innerWidth < 730) {
     popup.style.display = 'flex';
     canvasContainer.style.display = 'none';
+    startScreen.style.display = 'none'; // Hide start screen
   } else {
     popup.style.display = 'none';
     canvasContainer.style.display = 'block';
+
+    // Show the start screen only if the game has not started yet
+    if (!gameManager || !gameManager.world) {
+      startScreen.style.display = 'block';
+    }
   }
 }
 
@@ -101,20 +117,57 @@ function checkOrientation() {
  */
 function onMuteClick() {
   soundManager.toggleMute();
-
-  // Direkt nach dem Umschalten das Icon aktualisieren
   const muteIcon = document.getElementById('muteIcon');
   if (muteIcon) {
     muteIcon.src = soundManager.muted
       ? 'buttons/mute.svg'
       : 'buttons/unmute.svg';
   }
-
-  // Speichert den aktuellen Mute-Status im localStorage
-  localStorage.setItem('isMuted', soundManager.muted);
-  // Falls Unmute: Musik erneut starten
-  if (!soundManager.muted) {
+  if (!soundManager.muted && World.instance && !World.instance.isPaused) {
     soundManager.play('backgroundMusic');
+  } else {
+    soundManager.stop('backgroundMusic');
+  }
+}
+
+/**
+ * Loads the mute status from localStorage and updates the sound settings accordingly.
+ * If the game was muted previously, it remains muted; otherwise, background music
+ * will start playing after the first user interaction.
+ */
+function loadMuteStatus() {
+  const isMuted = localStorage.getItem('isMuted') === 'true';
+  soundManager.muted = isMuted;
+
+  isMuteRequest(isMuted);
+
+  const muteIcon = document.getElementById('muteIcon');
+  if (muteIcon) {
+    muteIcon.src = isMuted ? 'buttons/mute.svg' : 'buttons/unmute.svg';
+  }
+}
+
+/**
+ * Handles mute or unmute requests based on the provided parameter.
+ * If muted, it mutes all sounds. If unmuted, it waits for a user interaction
+ * before enabling sound and playing background music.
+ *
+ * @param {boolean} isMuted - Indicates whether the game should be muted or unmuted.
+ */
+function isMuteRequest(isMuted) {
+  if (isMuted) {
+    soundManager.mute();
+  } else {
+    document.addEventListener(
+      'click',
+      () => {
+        if (!World.instance.isPaused) {
+          soundManager.unmute();
+          soundManager.play('backgroundMusic');
+        }
+      },
+      { once: true } // Ensures this event listener is executed only once
+    );
   }
 }
 
@@ -161,27 +214,6 @@ function clearAllIntervals() {
   }
 }
 
-/**
- * Loads the mute status from localStorage and updates the sound settings accordingly.
- * If the game was muted previously, it remains muted; otherwise, background music
- * will start playing after the first user interaction.
- */
-function loadMuteStatus() {
-  const isMuted = localStorage.getItem('isMuted') === 'true';
-  soundManager.muted = isMuted;
-
-  if (isMuted) {
-    soundManager.mute();
-  } else {
-    document.addEventListener('click', playBackgroundMusicOnce, { once: true });
-  }
-
-  const muteIcon = document.getElementById('muteIcon');
-  if (muteIcon) {
-    muteIcon.src = isMuted ? 'buttons/mute.svg' : 'buttons/unmute.svg';
-  }
-}
-
 // Funktion zum Starten der Hintergrundmusik nach erster Interaktion
 function playBackgroundMusicOnce() {
   soundManager.unmute();
@@ -206,5 +238,9 @@ function toggleMenu() {
  */
 window.addEventListener('load', loadMuteStatus);
 
-window.addEventListener('resize', checkOrientation);
-window.addEventListener('load', checkOrientation);
+window.addEventListener('resize', () => {
+  if (gameManager && gameManager.world) {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('canvas-container').style.display = 'block';
+  }
+});

@@ -5,9 +5,10 @@
  */
 class Bottle extends MovableObject {
   /**
- * Global variables for the bottles.
- */
-  width = 100;ht = 100;
+   * Global variables for the bottles.
+   */
+  width = 100;
+  height = 100;
   y = 325;
   x = -400;
   animationInterval = null;

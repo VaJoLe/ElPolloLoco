@@ -19,6 +19,8 @@ class SoundManager {
       buttonClickSound: new Audio('audio/button.mp3'),
       endbossDeadSound: new Audio('audio/finish.mp3'),
       jumpOnChickenSound: new Audio('audio/onTop.mp3'),
+      hit: new Audio('audio/hit.wav'),
+      sleep: new Audio('audio/sleep.mp3'),
     };
 
     /**
@@ -32,6 +34,12 @@ class SoundManager {
      * @type {boolean}
      */
     this.muted = false;
+
+    /**
+     * Ensures the sleep music loops continuously.
+     * @type {boolean}
+     */
+    this.sounds.sleep.loop = true;
   }
 
   /**
@@ -40,7 +48,7 @@ class SoundManager {
    */
   play(sound) {
     if (this.sounds[sound] && !this.muted) {
-      this.sounds[sound].currentTime = 0; // Restart sound if already playing
+      this.sounds[sound].currentTime = 0; 
       this.sounds[sound].play();
     }
   }
@@ -79,12 +87,18 @@ class SoundManager {
   }
 
   /**
-   * Unmutes all sounds in the game.
+   * Unmutes all sounds in the game, but only plays background music if the game is not paused.
    */
   unmute() {
     this.muted = false;
+    localStorage.setItem('isMuted', 'false'); 
     for (let key in this.sounds) {
       this.sounds[key].volume = 1;
+    }
+    if (World.instance && !World.instance.isPaused) {
+      this.sounds.backgroundMusic.play();
+    } else {
+      this.sounds.backgroundMusic.pause();
     }
   }
 
@@ -96,6 +110,16 @@ class SoundManager {
       this.unmute();
     } else {
       this.mute();
+    }
+  }
+
+  /**
+   * Toggles the sleep sound volume based on game state.
+   * @param {boolean} paused - Whether the game is paused.
+   */
+  toggleSleepSound(paused) {
+    if (this.sounds.sleep) {
+      this.sounds.sleep.volume = paused ? 0 : 1;
     }
   }
 }

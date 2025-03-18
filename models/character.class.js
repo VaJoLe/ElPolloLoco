@@ -143,57 +143,56 @@ class Character extends MovableObject {
    * Controls character movement and updates camera position.
    */
   moveIntervalCharacter() {
-    let moveInterval = this.characterMove();
-    this.animationIntervals.push(moveInterval);
-    return moveInterval;
+    if (this.moveInterval) return;
+    this.moveInterval = setInterval(() => {
+      if (!World.instance?.isPaused && !this.isDead && this.world) {
+        this.characterMove();
+      }
+    }, 1000 / 60);
+    this.animationIntervals.push(this.moveInterval);
   }
 
   /**
- * Controls the movement of the character based on keyboard input.
- * Handles right movement, left movement, jumping, and camera tracking.
- */
-characterMove() {
-  setInterval(() => {
-    if (!World.instance?.isPaused && !this.isDead && this.world) {
-      if (this.characterMoving()) {
-        this.resetIdleTimer();
-      }
-      if (this.characterMoveRight()) {
-        this.moveRight();
-        this.otherDirection = false;
-      }
-      if (this.world.keyboard.LEFT && this.x > -620) {
-        this.moveLeft();
-        this.otherDirection = true;
-      }
-      if (this.world.keyboard.UP && !this.isAboveGround()) {
-        this.jump();
-      }
-      this.world.camera_x = -this.x + 90;
+   * Handles the movement of the character based on user input.
+   * Adjusts the position, handles direction changes, and updates the camera.
+   */
+  characterMove() {
+    if (this.characterMoving()) {
+      this.resetIdleTimer();
     }
-  }, 1000 / 60);
-}
+    if (this.characterMoveRight()) {
+      this.moveRight();
+      this.otherDirection = false;
+    }
+    if (this.world.keyboard.LEFT && this.x > -620) {
+      this.moveLeft();
+      this.otherDirection = true;
+    }
+    if (this.world.keyboard.UP && !this.isAboveGround()) {
+      this.jump();
+    }
+    this.world.camera_x = -this.x + 90;
+  }
 
-/**
-* Checks if the character is moving based on keyboard input.
-* @returns {boolean} True if the character is moving (pressing LEFT, RIGHT, or UP), otherwise false.
-*/
-characterMoving() {
-  return (
-    this.world.keyboard.RIGHT ||
-    this.world.keyboard.LEFT ||
-    this.world.keyboard.UP
-  );
-}
+  /**
+   * Checks if the character is moving based on keyboard input.
+   * @returns {boolean} True if the character is moving (pressing LEFT, RIGHT, or UP), otherwise false.
+   */
+  characterMoving() {
+    return (
+      this.world.keyboard.RIGHT ||
+      this.world.keyboard.LEFT ||
+      this.world.keyboard.UP
+    );
+  }
 
-/**
-* Checks if the character is allowed to move right.
-* @returns {boolean} True if the character can move right, otherwise false.
-*/
-characterMoveRight() {
-  return this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x;
-}
-
+  /**
+   * Checks if the character is allowed to move right.
+   * @returns {boolean} True if the character can move right, otherwise false.
+   */
+  characterMoveRight() {
+    return this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x;
+  }
 
   /**
    * Animates character actions based on state (walking, jumping, hurt, idle, or sleeping).
@@ -274,6 +273,10 @@ characterMoveRight() {
    */
   stopCurrentAnimation() {
     this.animationIntervals.forEach(interval => clearInterval(interval));
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+      this.moveInterval = null;
+    }
     this.animationIntervals = [];
   }
 
@@ -282,7 +285,7 @@ characterMoveRight() {
    */
   showRestartButton() {
     let gameOverRestartBtn = document.getElementById('gameOverRestartButton');
-    gameOverRestartBtn.classList.remove('hidden'); // Neuer Button im Game-Over-Screen
+    gameOverRestartBtn.classList.remove('hidden');
   }
 
   /**
@@ -298,7 +301,8 @@ characterMoveRight() {
   startIdleTimer() {
     this.sleepTimeout = setTimeout(() => {
       this.isSleeping = true;
-    }, 15000);
+      soundManager.play('sleep');
+    }, 8000);
   }
 
   /**
@@ -306,7 +310,12 @@ characterMoveRight() {
    */
   resetIdleTimer() {
     clearTimeout(this.sleepTimeout);
-    this.isSleeping = false;
+
+    if (this.isSleeping) {
+      this.isSleeping = false;
+      soundManager.stop('sleep');
+    }
+
     this.startIdleTimer();
   }
 }
