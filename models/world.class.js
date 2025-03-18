@@ -51,12 +51,13 @@ class World {
       this.stopAllIntervals();
       soundManager.toggleBackgroundMusic(true);
       soundManager.toggleSleepSound(true);
+    } else {
       this.resumeAllIntervals();
       soundManager.toggleBackgroundMusic(false);
       soundManager.toggleSleepSound(false);
-      if (!soundManager.muted) {
-        soundManager.play('backgroundMusic');
-      }
+      if (!soundManager.muted && soundManager.sounds.backgroundMusic.paused) {
+        soundManager.sounds.backgroundMusic.play();
+    }
     }
     this.pauseThrowableObjects();
     this.pauseCoins();
