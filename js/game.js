@@ -35,6 +35,7 @@ function goToHomeScreen() {
     document.getElementById('start-screen').style.display = 'block';
     document.getElementById('menuContainer').classList.add('hidden');
     soundManager.stop('backgroundMusic');
+    soundManager.stop('sleep'); 
   }
 }
 
