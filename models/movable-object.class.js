@@ -4,51 +4,15 @@
  */
 class MovableObject extends DrawableObject {
   /**
-   * The movement speed of the object.
-   * @type {number}
-   */
+ * Global variables for the movableobjects.
+ */
   speed = 0.2;
-
-  /**
-   * Indicates whether the object is facing the opposite direction.
-   * @type {boolean}
-   */
   otherDirection = false;
-
-  /**
-   * The vertical speed of the object (used for jumping and gravity).
-   * @type {number}
-   */
   speedY = 0;
-
-  /**
-   * The gravity acceleration applied to the object.
-   * @type {number}
-   */
   acceleration = 2.5;
-
-  /**
-   * The timestamp of the last time the object was hit.
-   * @type {number}
-   */
   lastHit = 0;
-
-  /**
-   * The energy level of the object (used for health-based mechanics).
-   * @type {number}
-   */
   energy = 100;
-
-  /**
-   * The number of bottles collected by the object.
-   * @type {number}
-   */
   bottle = 0;
-
-  /**
-   * The number of coins collected by the object.
-   * @type {number}
-   */
   coin = 0;
 
   /**

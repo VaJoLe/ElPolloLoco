@@ -1,6 +1,5 @@
 /**
- * Global variable for the first level of the game.
- * It will be initialized in the `initLevel` function.
+ * Global variables for the level.
  */
 let level1;
 

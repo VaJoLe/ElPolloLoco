@@ -5,33 +5,11 @@
  */
 class Bottle extends MovableObject {
   /**
-   * The width of the bottle.
-   * @type {number}
-   */
-  width = 100;
-
-  /**
-   * The height of the bottle.
-   * @type {number}
-   */
-  height = 100;
-
-  /**
-   * The initial vertical position of the bottle.
-   * @type {number}
-   */
-  y = 300;
-
-  /**
-   * The initial horizontal position of the bottle (randomly adjusted).
-   * @type {number}
-   */
+ * Global variables for the bottles.
+ */
+  width = 100;ht = 100;
+  y = 325;
   x = -400;
-
-  /**
-   * Interval reference for the bottle's animation.
-   * @type {number|null}
-   */
   animationInterval = null;
 
   /**

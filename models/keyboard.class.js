@@ -4,35 +4,12 @@
  */
 class Keyboard {
   /**
-   * Indicates whether the left arrow key or left mobile button is pressed.
-   * @type {boolean}
-   */
+ * Global variables for the keyboard.
+ */
   LEFT = false;
-
-  /**
-   * Indicates whether the right arrow key or right mobile button is pressed.
-   * @type {boolean}
-   */
   RIGHT = false;
-
-  /**
-   * Indicates whether the up arrow key or jump button is pressed.
-   * @type {boolean}
-   */
   UP = false;
-
-  /**
-   * Indicates whether the down arrow key is pressed.
-   * (Not used in some game versions.)
-   * @type {boolean}
-   */
   DOWN = false;
-
-  /**
-   * Indicates whether the space key is pressed.
-   * Typically used for throwing objects.
-   * @type {boolean}
-   */
   SPACE = false;
 
   /**

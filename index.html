@@ -51,26 +51,65 @@
       ></canvas>
 
       <button
-        onclick="buttonSound(); restartButton()"
-        id="restartButton"
-        class="topRight2 restartBtn"
+        onclick="toggleMenu()"
+        id="menuButton"
+        class="btn topRight"
       >
         <img
-          src="buttons/restart.svg"
-          alt=""
+          src="buttons/menu.svg"
+          alt="Menu"
         />
       </button>
 
-      <button
-        onclick="buttonSound(); onPauseClick()"
-        id="pauseButton"
-        class="btn topRight1"
+      <div
+        id="menuContainer"
+        class="menu-container hidden"
       >
-        <img
-          src="buttons/break.svg"
-          alt=""
-        />
-      </button>
+        <button
+          onclick="buttonSound(); goToHomeScreen()"
+          id="homeButton"
+          class="btn"
+        >
+          <img
+            src="buttons/home.svg"
+            alt="Restart"
+          />
+        </button>
+
+        <button
+          onclick="buttonSound(); onPauseClick()"
+          id="pauseButton"
+          class="btn"
+        >
+          <img
+            src="buttons/break.svg"
+            alt=""
+          />
+        </button>
+
+        <button
+          onclick="buttonSound(); onMuteClick()"
+          id="muteButton"
+          class="btn"
+        >
+          <img
+            id="muteIcon"
+            src="buttons/unmute.svg"
+            alt="Unmute"
+          />
+        </button>
+        
+        <button
+          onclick="toggleMobileControlsHint()"
+          id="controlButton"
+          class="btn"
+        >
+          <img
+            src="buttons/control.svg"
+            alt="Controls"
+          />
+        </button>
+      </div>
 
       <button
         onclick="buttonSound(); fullscreenButton()"
@@ -84,14 +123,13 @@
       </button>
 
       <button
-        onclick="buttonSound(); onMuteClick()"
-        id="muteButton"
-        class="btn muteBtn"
+        onclick="buttonSound(); restartGameWithoutStartScreen()"
+        id="gameOverRestartButton"
+        class="game-over-btn hidden"
       >
         <img
-          id="muteIcon"
-          src="buttons/unmute.svg"
-          alt="Unmute"
+          src="buttons/restart.svg"
+          alt="Restart"
         />
       </button>
 
@@ -114,18 +152,10 @@
 
       <div
         id="mobile-controls-hint"
-        class="mobile-hint"
+        class="mobile-hint hidden"
       >
         <p><strong>Steuerung:</strong></p>
-        <p class="mobile-hint-p">
-          ← Links | → Rechts | ↑ Springen |
-          <img
-            class="salsa-bottle2"
-            src="img/6_salsa_bottle/salsa_bottle.png"
-            alt=""
-          />
-          Werfen
-        </p>
+        <p>← Links | → Rechts | ↑ Springen | SPACE Werfen</p>
       </div>
     </div>
 
@@ -150,11 +180,32 @@
           alt=""
         />
       </button>
+      <a
+        class="impressum-btn"
+        href="impressum.html"
+        >Impressum</a
+      >
     </div>
-    <a
-      class="impressum-btn"
-      href="impressum.html"
-      >Impressum</a
+
+    <div
+      id="win-screen"
+      class="win-screen hidden"
     >
+      <img
+        src="img/winner.png"
+        class="winner-img"
+        alt="Winner Image"
+      />
+      <button
+        onclick="buttonSound(); restartGameWithoutStartScreen()"
+        class="game-over-btn pos90"
+      >
+        <img
+          src="buttons/restart.svg"
+          class="w-h-auto"
+          alt="Restart"
+        />
+      </button>
+    </div>
   </body>
 </html>

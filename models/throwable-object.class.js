@@ -62,35 +62,52 @@ class ThrowableObject extends MovableObject {
 
       this.x += 15;
       this.playAnimation(this.IMAGES_ROTATION);
-
       let enemies = World.instance.level.enemies;
-      enemies.forEach(enemy => {
-        if (enemy instanceof Chicken || enemy instanceof ChickenSmall) {
-          if (this.isColliding(enemy)) {
-            enemy.die();
-            this.stopGravity();
-            clearInterval(this.throwInterval);
-            this.splash();
-          }
-        }
-      });
-
-      let endboss = enemies.find(enemy => enemy instanceof Endboss);
-
-      if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
-        endboss.gotHit();
-        this.stopGravity();
-        clearInterval(this.throwInterval);
-        this.splash();
-      } else if (this.y > 400) {
-        clearInterval(this.throwInterval);
-      }
+      this.throwOnEnemy(enemies);
+      this.throwOnEndboss(enemies);
     }, 25);
-
     if (World.instance) {
       World.instance.allIntervals.push(this.throwInterval);
     }
   }
+
+  t/**
+ * Checks if a thrown object collides with any enemy (Chicken or ChickenSmall).
+ * If a collision is detected, the enemy dies, gravity stops, and the object plays a splash animation.
+ * @param {MovableObject[]} enemies - The array of enemy objects in the game.
+ */
+throwOnEnemy(enemies) {
+  enemies.forEach(enemy => {
+    if (enemy instanceof Chicken || enemy instanceof ChickenSmall) {
+      if (this.isColliding(enemy)) {
+        enemy.die();
+        this.stopGravity();
+        clearInterval(this.throwInterval);
+        this.splash();
+      }
+    }
+  });
+}
+
+/**
+* Checks if a thrown object collides with the Endboss.
+* If a collision is detected, the Endboss takes damage, gravity stops, and the object plays a splash animation.
+* If the object reaches the ground without hitting the Endboss, the interval is cleared.
+* @param {MovableObject[]} enemies - The array of enemy objects in the game, including the Endboss.
+*/
+throwOnEndboss(enemies) {
+  let endboss = enemies.find(enemy => enemy instanceof Endboss);
+
+  if (endboss && this.x >= endboss.x + endboss.width / 2 - this.width / 2) {
+    endboss.gotHit();
+    this.stopGravity();
+    clearInterval(this.throwInterval);
+    this.splash();
+  } else if (this.y > 400) {
+    clearInterval(this.throwInterval);
+  }
+}
+
 
   /**
    * Stops the gravity effect for the throwable object.

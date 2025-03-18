@@ -40,9 +40,14 @@ class GameManager {
     initLevel();
     this.world = new World(this.canvas, this.keyboard);
     this.keyboard.setupMobileControls();
-    showMobileControlsHint();
 
     soundManager.play('backgroundMusic');
+    const muteIcon = document.getElementById('muteIcon');
+    if (muteIcon) {
+      muteIcon.src = soundManager.muted
+        ? 'buttons/mute.svg'
+        : 'buttons/unmute.svg';
+    }
   }
 
   /**
@@ -94,7 +99,12 @@ class GameManager {
     this.resetButtons();
 
     soundManager.stop('backgroundMusic');
-    soundManager.muted = false;
+    const muteIcon = document.getElementById('muteIcon');
+    if (muteIcon) {
+      muteIcon.src = soundManager.muted
+        ? 'buttons/mute.svg'
+        : 'buttons/unmute.svg';
+    }
 
     this.world = null;
     this.keyboard = new Keyboard();
@@ -120,15 +130,12 @@ class GameManager {
    * Ensures the game UI is properly initialized when restarting.
    */
   resetButtons() {
-    let restartBtn = document.getElementById('restartButton');
-    if (restartBtn) restartBtn.classList.remove('game-over-btn');
+    let restartBtn = document.getElementById('gameOverRestartButton');
+    if (restartBtn) restartBtn.classList.add('hidden');
 
     let pauseBtn = document.getElementById('pauseButton');
     if (pauseBtn && pauseBtn.querySelector('img')) {
       pauseBtn.querySelector('img').src = 'buttons/break.svg';
     }
-
-    let muteIcon = document.getElementById('muteIcon');
-    if (muteIcon) muteIcon.src = 'buttons/unmute.svg';
   }
 }

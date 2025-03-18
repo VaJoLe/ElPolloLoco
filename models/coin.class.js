@@ -5,27 +5,11 @@
  */
 class Coin extends MovableObject {
   /**
-   * The width of the coin.
-   * @type {number}
-   */
+ * Global variables for the coins.
+ */
   width = 150;
-
-  /**
-   * The height of the coin.
-   * @type {number}
-   */
   height = 150;
-
-  /**
-   * The initial vertical position of the coin.
-   * @type {number}
-   */
   y = 80;
-
-  /**
-   * The initial horizontal position of the coin (randomly assigned).
-   * @type {number}
-   */
   x = -500;
 
   /**
@@ -67,6 +51,17 @@ class Coin extends MovableObject {
 
     if (World.instance) {
       World.instance.allIntervals.push(this.playInterval);
+    }
+  }
+
+  /**
+ * Stops the animation of the object by clearing the play interval.
+ * Ensures that the animation does not continue running when paused or stopped.
+ */
+  stopAnimation() {
+    if (this.playInterval) {
+      clearInterval(this.playInterval);
+      this.playInterval = null;
     }
   }
 }

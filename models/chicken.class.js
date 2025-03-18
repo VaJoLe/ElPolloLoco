@@ -5,45 +5,14 @@
  */
 class Chicken extends MovableObject {
   /**
-   * The width of the chicken.
-   * @type {number}
-   */
+ * Global variables for the chicken.
+ */
   width = 80;
-
-  /**
-   * The height of the chicken.
-   * @type {number}
-   */
   height = 90;
-
-  /**
-   * The initial vertical position of the chicken.
-   * @type {number}
-   */
   y = 330;
-
-  /**
-   * Indicates whether the chicken is dead.
-   * @type {boolean}
-   */
   isDead = false;
-
-  /**
-   * Indicates whether the chicken's animation is currently active.
-   * @type {boolean}
-   */
   isAnimating = false;
-
-  /**
-   * Interval reference for the walking animation cycle.
-   * @type {number|null}
-   */
   animationInterval = null;
-
-  /**
-   * Interval reference for the movement cycle.
-   * @type {number|null}
-   */
   moveInterval = null;
 
   /**
@@ -149,6 +118,7 @@ class Chicken extends MovableObject {
       soundManager.play('jumpOnChickenSound');
       this.die();
       char.speedY = 15; // Character bounces upon squashing the chicken
+      char.y = 130;
     }
   }
 

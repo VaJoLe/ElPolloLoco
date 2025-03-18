@@ -74,14 +74,13 @@ canvas {
 }
 
 .btn {
-    position: absolute;
     width: 50px;
     height: 50px;
     background-color: transparent;
-    color: white;
     border: none;
     cursor: pointer;
     z-index: 100;
+    padding: 0;
 }
 
 .btn img {
@@ -89,49 +88,21 @@ canvas {
     height: 50px;
 }
 
-.hidden {
-    display: none;
-}
-
-.restartBtn {
-    position: absolute;
-    top: 10px;
-    right: 60px;
-    width: 50px;
-    height: 50px;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-}
-
-.restartBtn img {
-    width: inherit;
-    height: inherit;
-}
-
 .game-over-btn {
     position: absolute;
     top: 80%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100%;
     height: 100px;
-
-}
-
-.topRight1 {
-    top: 10px;
-    right: 10px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .bottomRight {
+    position: absolute;
     bottom: 10px;
     right: 10px;
-}
-
-.muteBtn {
-    top: 10px;
-    right: 110px;
 }
 
 #fullscreenButton {
@@ -179,8 +150,6 @@ canvas {
     width: 40px;
 }
 
-
-
 #orientation-popup {
     display: none;
     position: fixed;
@@ -205,23 +174,25 @@ canvas {
 
 .mobile-hint {
     position: absolute;
-    top: 10px;
+    top: 65px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.7);
     color: white;
-    padding: 10px;
     border-radius: 5px;
     text-align: center;
-    font-size: 14px;
+    font-size: 25px;
+    letter-spacing: 1.5px;
     z-index: 101;
 }
 
-.mobile-hint-p {
+.mobile-hint p {
     margin: 0;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
+
 
 .salsa-bottle2 {
     width: 30px;
@@ -229,8 +200,8 @@ canvas {
 
 .impressum-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    bottom: 10px;
+    left: 10px;
     font-size: 20px;
     color: white;
     background-color: rgba(0, 0, 0, 0.2);
@@ -241,11 +212,56 @@ canvas {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.win-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 720px;
+    height: 483px;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+}
 
-@media (min-width: 768px) {
-    #mobile-controls {
-        display: none;
-    }
+.winner-img {
+    width: 60%;
+    height: auto;
+}
+
+.w-h-auto {
+    width: 80px;
+    height: 80px;
+}
+
+.pos90 {
+    top: 92%;
+}
+
+#menuButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.menu-container {
+    position: absolute;
+    top: 10px;
+    right: 70px;
+    width: auto;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.hidden {
+    display: none;
 }
 
 @media (max-width: 720px) {
@@ -264,7 +280,6 @@ canvas {
         display: none;
     }
 }
-
 
 @media (max-height: 480px) {
     #canvas-container {

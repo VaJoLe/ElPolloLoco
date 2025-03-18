@@ -3,46 +3,14 @@
  */
 class Level {
   /**
-   * The main character in the level.
-   * This is assigned externally.
-   * @type {Character}
-   */
+ * Global variables for the level.
+ */
   character;
-
-  /**
-   * An array of enemies present in the level.
-   * @type {MovableObject[]}
-   */
   enemies;
-
-  /**
-   * An array of cloud objects for the background animation.
-   * @type {Clouds[]}
-   */
   clouds;
-
-  /**
-   * An array of background objects such as scenery and terrain.
-   * @type {BackgroundObject[]}
-   */
   backgroundObjects;
-
-  /**
-   * An array of collectible coins scattered throughout the level.
-   * @type {Coin[]}
-   */
   coins;
-
-  /**
-   * An array of collectible bottles that can be thrown by the player.
-   * @type {Bottle[]}
-   */
   bottles;
-
-  /**
-   * The x-coordinate where the level ends.
-   * @type {number}
-   */
   level_end_x = 2240;
 
   /**

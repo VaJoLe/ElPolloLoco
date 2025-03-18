@@ -4,21 +4,10 @@
  */
 class DrawableObject {
   /**
-   * The image object of the drawable entity.
-   * @type {HTMLImageElement}
-   */
+ * Global variables for the drawableobjects.
+ */
   img;
-
-  /**
-   * Stores preloaded images to optimize performance.
-   * @type {Object.<string, HTMLImageElement>}
-   */
   imageCache = {};
-
-  /**
-   * The index of the currently displayed image (used for animations).
-   * @type {number}
-   */
   currentImage = 0;
 
   /**

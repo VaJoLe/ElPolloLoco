@@ -1,86 +1,24 @@
+/**
+ * Represents the game world, including the character, level, enemies, collectibles, and interactions.
+ * Manages game logic such as collisions, animations, and user inputs.
+ */
 class World {
   /**
-   * The main character controlled by the player.
-   * @type {Character}
+   * Global variables for the world.
    */
   character = new Character();
-
-  /**
-   * The level being played, containing enemies, objects, and collectibles.
-   * @type {Level}
-   */
   level = level1;
-
-  /**
-   * The rendering context for the game canvas.
-   * @type {CanvasRenderingContext2D}
-   */
   ctx;
-
-  /**
-   * The HTML canvas element where the game is rendered.
-   * @type {HTMLCanvasElement}
-   */
   canvas;
-
-  /**
-   * The keyboard instance handling player inputs.
-   * @type {Keyboard}
-   */
   keyboard;
-
-  /**
-   * The horizontal camera offset for scrolling effects.
-   * @type {number}
-   */
   camera_x = 0;
-
-  /**
-   * The health status bar displaying the character's remaining health.
-   * @type {StatusbarHealth}
-   */
   statusbarHealth = new StatusbarHealth();
-
-  /**
-   * The bottle status bar displaying the number of collected bottles.
-   * @type {StatusbarBottle}
-   */
   statusbarBottle = new StatusbarBottle();
-
-  /**
-   * The coin status bar displaying the number of collected coins.
-   * @type {StatusbarCoin}
-   */
   statusbarCoin = new StatusbarCoin();
-
-  /**
-   * List of throwable objects (bottles) currently in the game.
-   * @type {ThrowableObject[]}
-   */
   throwableObjects = [];
-
-  /**
-   * Indicates whether the space key is pressed for throwing bottles.
-   * @type {boolean}
-   */
   spacePressed = false;
-
-  /**
-   * Singleton instance of the game world.
-   * @type {World}
-   */
   static instance;
-
-  /**
-   * Array storing all active intervals in the game for pausing and stopping.
-   * @type {number[]}
-   */
   allIntervals = [];
-
-  /**
-   * Indicates whether the game is currently paused.
-   * @type {boolean}
-   */
   isPaused = false;
 
   /**
@@ -118,6 +56,8 @@ class World {
     }
 
     this.pauseThrowableObjects();
+    this.pauseCoins(); // Hier Coins pausieren
+    this.pauseClouds(); // Hier Coins pausieren
   }
 
   /**
@@ -154,7 +94,19 @@ class World {
     this.character.stopCurrentAnimation();
     this.character.isAnimating = false;
     this.character.animate();
-    this.level.enemies.forEach(enemy => {
+    this.resumeForEnemies();
+    this.level.clouds.forEach(cloud => cloud.animate());
+    this.level.bottles.forEach(bottle => bottle.animate());
+    this.level.coins.forEach(coin => coin.animate());
+    this.run();
+    this.character.resetIdleTimer();
+  }
+
+  /**
+   * Resumes enemies intervals and animations after unpausing.
+   */
+  resumeForEnemies() {
+    return this.level.enemies.forEach(enemy => {
       if (!enemy.isAnimating) {
         enemy.stopCurrentAnimation();
         enemy.isAnimating = false;
@@ -168,11 +120,6 @@ class World {
         }
       }
     });
-    this.level.clouds.forEach(cloud => cloud.animate());
-    this.level.bottles.forEach(bottle => bottle.animate());
-    this.level.coins.forEach(coin => coin.animate());
-    this.run();
-    this.character.resetIdleTimer();
   }
 
   /**
@@ -211,7 +158,7 @@ class World {
    * Handles throwing a bottle by the player character.
    */
   throwBottle() {
-    if (this.isPaused) return;
+    if (this.isPaused || this.character.isDead) return;
 
     if (this.character.bottle > 0) {
       let bottle = new ThrowableObject(
@@ -338,10 +285,10 @@ class World {
     this.addToMap(this.statusbarBottle);
     this.addToMap(this.statusbarCoin);
     this.ctx.translate(this.camera_x, 0);
-    this.addToMap(this.character);
+    this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
-    this.addObjectsToMap(this.level.enemies);
+    this.addToMap(this.character);
     this.addObjectsToMap(this.throwableObjects);
     this.ctx.translate(-this.camera_x, 0);
   }
@@ -365,11 +312,8 @@ class World {
     if (mo.otherDirection) {
       this.flipImage(mo);
     }
-
     mo.draw(this.ctx);
-
     mo.drawFrame(this.ctx);
-
     if (mo.otherDirection) {
       this.flipImageBack(mo);
     }
@@ -409,5 +353,32 @@ class World {
     if (this.boundKeyUp) {
       document.removeEventListener('keyup', this.boundKeyUp);
     }
+  }
+  /**
+   * Pauses or resumes coin animations based on the game state.
+   * If the game is paused, the coin animation stops; otherwise, it resumes.
+   */
+  pauseCoins() {
+    this.level.coins.forEach(coin => {
+      if (this.isPaused) {
+        coin.stopAnimation();
+      } else {
+        coin.animate();
+      }
+    });
+  }
+
+  /**
+   * Pauses or resumes cloud animations based on the game state.
+   * If the game is paused, the cloud animation stops; otherwise, it resumes.
+   */
+  pauseClouds() {
+    this.level.clouds.forEach(cloud => {
+      if (this.isPaused) {
+        cloud.stopAnimation();
+      } else {
+        cloud.animate();
+      }
+    });
   }
 }

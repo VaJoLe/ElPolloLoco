@@ -4,63 +4,17 @@
  */
 class Character extends MovableObject {
   /**
-   * The initial horizontal position of the character.
-   * @type {number}
+   * Global variables for the character.
    */
   x = -620;
-
-  /**
-   * The initial vertical position of the character.
-   * @type {number}
-   */
   y = 130;
-
-  /**
-   * The height of the character.
-   * @type {number}
-   */
   height = 300;
-
-  /**
-   * The width of the character.
-   * @type {number}
-   */
   width = 130;
-
-  /**
-   * The movement speed of the character.
-   * @type {number}
-   */
   speed = 10;
-
-  /**
-   * Indicates whether the character is dead.
-   * @type {boolean}
-   */
   isDead = false;
-
-  /**
-   * Indicates whether the character's animations are active.
-   * @type {boolean}
-   */
   isAnimating = false;
-
-  /**
-   * Idle time counter to determine if the character should sleep.
-   * @type {number}
-   */
   idleTime = 0;
-
-  /**
-   * Timeout reference for sleep mode.
-   * @type {number|null}
-   */
   sleepTimeout = null;
-
-  /**
-   * Indicates whether the character is in sleep mode.
-   * @type {boolean}
-   */
   isSleeping = false;
 
   /**
@@ -189,35 +143,57 @@ class Character extends MovableObject {
    * Controls character movement and updates camera position.
    */
   moveIntervalCharacter() {
-    let moveInterval = setInterval(() => {
-      if (!World.instance?.isPaused && !this.isDead && this.world) {
-        if (
-          this.world.keyboard.RIGHT ||
-          this.world.keyboard.LEFT ||
-          this.world.keyboard.UP
-        ) {
-          this.resetIdleTimer();
-        }
-        if (
-          this.world.keyboard.RIGHT &&
-          this.x < this.world.level.level_end_x
-        ) {
-          this.moveRight();
-          this.otherDirection = false;
-        }
-        if (this.world.keyboard.LEFT && this.x > -620) {
-          this.moveLeft();
-          this.otherDirection = true;
-        }
-        if (this.world.keyboard.UP && !this.isAboveGround()) {
-          this.jump();
-        }
-        this.world.camera_x = -this.x + 90;
-      }
-    }, 1000 / 60);
+    let moveInterval = this.characterMove();
     this.animationIntervals.push(moveInterval);
     return moveInterval;
   }
+
+  /**
+ * Controls the movement of the character based on keyboard input.
+ * Handles right movement, left movement, jumping, and camera tracking.
+ */
+characterMove() {
+  setInterval(() => {
+    if (!World.instance?.isPaused && !this.isDead && this.world) {
+      if (this.characterMoving()) {
+        this.resetIdleTimer();
+      }
+      if (this.characterMoveRight()) {
+        this.moveRight();
+        this.otherDirection = false;
+      }
+      if (this.world.keyboard.LEFT && this.x > -620) {
+        this.moveLeft();
+        this.otherDirection = true;
+      }
+      if (this.world.keyboard.UP && !this.isAboveGround()) {
+        this.jump();
+      }
+      this.world.camera_x = -this.x + 90;
+    }
+  }, 1000 / 60);
+}
+
+/**
+* Checks if the character is moving based on keyboard input.
+* @returns {boolean} True if the character is moving (pressing LEFT, RIGHT, or UP), otherwise false.
+*/
+characterMoving() {
+  return (
+    this.world.keyboard.RIGHT ||
+    this.world.keyboard.LEFT ||
+    this.world.keyboard.UP
+  );
+}
+
+/**
+* Checks if the character is allowed to move right.
+* @returns {boolean} True if the character can move right, otherwise false.
+*/
+characterMoveRight() {
+  return this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x;
+}
+
 
   /**
    * Animates character actions based on state (walking, jumping, hurt, idle, or sleeping).
@@ -305,8 +281,8 @@ class Character extends MovableObject {
    * Displays the restart button when the game is over.
    */
   showRestartButton() {
-    let restartBtn = document.getElementById('restartButton');
-    restartBtn.classList.add('game-over-btn');
+    let gameOverRestartBtn = document.getElementById('gameOverRestartButton');
+    gameOverRestartBtn.classList.remove('hidden'); // Neuer Button im Game-Over-Screen
   }
 
   /**

@@ -25,13 +25,32 @@ function startButton() {
 }
 
 /**
- * Restarts the game if `gameManager` exists.
- * Ensures the restart button is visible.
+ * Returns to the home screen by resetting the game and hiding the game canvas.
+ * Ensures the start screen and menu container are properly displayed.
  */
-function restartButton() {
+function goToHomeScreen() {
   if (gameManager) {
-    document.getElementById('restartButton').classList.remove('hidden');
+    gameManager.destroyGame(); // Reset game
+    document.getElementById('canvas-container').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'block';
+    document.getElementById('menuContainer').classList.add('hidden');
+  }
+}
+
+/**
+ * Restarts the game without showing the start screen.
+ * Resets the UI elements and starts the game again.
+ */
+function restartGameWithoutStartScreen() {
+  if (gameManager) {
+    document.getElementById('win-screen').classList.add('hidden'); // Hide end screen
+    document.getElementById('menuContainer').classList.add('hidden');
+
+    document.getElementById('canvas-container').style.display = 'block';
+    document.getElementById('start-screen').style.display = 'none';
+
     gameManager.restartGame();
+    gameManager.startGame();
   }
 }
 
@@ -82,7 +101,21 @@ function checkOrientation() {
  */
 function onMuteClick() {
   soundManager.toggleMute();
-  muteIcon.src = soundManager.muted ? 'buttons/mute.svg' : 'buttons/unmute.svg';
+
+  // Direkt nach dem Umschalten das Icon aktualisieren
+  const muteIcon = document.getElementById('muteIcon');
+  if (muteIcon) {
+    muteIcon.src = soundManager.muted
+      ? 'buttons/mute.svg'
+      : 'buttons/unmute.svg';
+  }
+
+  // Speichert den aktuellen Mute-Status im localStorage
+  localStorage.setItem('isMuted', soundManager.muted);
+  // Falls Unmute: Musik erneut starten
+  if (!soundManager.muted) {
+    soundManager.play('backgroundMusic');
+  }
 }
 
 /**
@@ -104,19 +137,17 @@ function onPauseClick() {
 }
 
 /**
- * Displays a hint for mobile controls when the screen width is below 762 pixels.
- * The hint disappears after 10 seconds.
+ * Toggles the visibility of the mobile controls hint.
+ * If the hint is currently hidden, it will be shown; otherwise, it will be hidden.
  */
-function showMobileControlsHint() {
+function toggleMobileControlsHint() {
   let hint = document.getElementById('mobile-controls-hint');
-  if (!hint) return;
+  if (!hint) return; // Exit if the element does not exist
 
-  if (window.innerWidth <= 762) {
+  if (hint.classList.contains('hidden')) {
     hint.classList.remove('hidden');
-
-    setTimeout(() => {
-      hint.classList.add('hidden');
-    }, 10000);
+  } else {
+    hint.classList.add('hidden');
   }
 }
 
@@ -131,13 +162,49 @@ function clearAllIntervals() {
 }
 
 /**
+ * Loads the mute status from localStorage and updates the sound settings accordingly.
+ * If the game was muted previously, it remains muted; otherwise, background music
+ * will start playing after the first user interaction.
+ */
+function loadMuteStatus() {
+  const isMuted = localStorage.getItem('isMuted') === 'true';
+  soundManager.muted = isMuted;
+
+  if (isMuted) {
+    soundManager.mute();
+  } else {
+    document.addEventListener('click', playBackgroundMusicOnce, { once: true });
+  }
+
+  const muteIcon = document.getElementById('muteIcon');
+  if (muteIcon) {
+    muteIcon.src = isMuted ? 'buttons/mute.svg' : 'buttons/unmute.svg';
+  }
+}
+
+// Funktion zum Starten der Hintergrundmusik nach erster Interaktion
+function playBackgroundMusicOnce() {
+  soundManager.unmute();
+  soundManager.play('backgroundMusic');
+}
+
+/**
+ * Toggles the visibility of the game menu.
+ * If the menu is currently hidden, it will be shown; otherwise, it will be hidden.
+ */
+function toggleMenu() {
+  let menu = document.getElementById('menuContainer');
+  if (menu.classList.contains('hidden')) {
+    menu.classList.remove('hidden');
+  } else {
+    menu.classList.add('hidden');
+  }
+}
+
+/**
  * Adds event listeners to handle screen resizing and orientation changes.
  */
-window.addEventListener('resize', () => {
-  if (window.innerWidth <= 762) {
-    showMobileControlsHint();
-  }
-});
+window.addEventListener('load', loadMuteStatus);
 
 window.addEventListener('resize', checkOrientation);
 window.addEventListener('load', checkOrientation);

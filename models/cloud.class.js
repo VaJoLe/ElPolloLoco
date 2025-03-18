@@ -5,27 +5,11 @@
  */
 class Clouds extends MovableObject {
   /**
-   * The initial vertical position of the cloud.
-   * @type {number}
-   */
+ * Global variables for the clouds.
+ */
   y = 20;
-
-  /**
-   * The height of the cloud.
-   * @type {number}
-   */
   height = 250;
-
-  /**
-   * The width of the cloud.
-   * @type {number}
-   */
   width = 500;
-
-  /**
-   * Interval reference for cloud movement.
-   * @type {number|null}
-   */
   moveInterval = null;
 
   /**
@@ -54,6 +38,17 @@ class Clouds extends MovableObject {
 
     if (World.instance) {
       World.instance.allIntervals.push(this.moveInterval);
+    }
+  }
+
+  /**
+ * Stops the animation of the object by clearing the play interval.
+ * Ensures that the animation does not continue running when paused or stopped.
+ */
+  stopAnimation() {
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+      this.moveInterval = null;
     }
   }
 }

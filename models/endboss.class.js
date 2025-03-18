@@ -5,45 +5,14 @@
  */
 class Endboss extends MovableObject {
   /**
-   * The width of the Endboss.
-   * @type {number}
-   */
+ * Global variables for the endboss.
+ */
   width = 300;
-
-  /**
-   * The height of the Endboss.
-   * @type {number}
-   */
   height = 400;
-
-  /**
-   * The initial vertical position of the Endboss.
-   * @type {number}
-   */
   y = 50;
-
-  /**
-   * The movement speed of the Endboss.
-   * @type {number}
-   */
-  speed = 1;
-
-  /**
-   * The number of lives the Endboss has.
-   * @type {number}
-   */
+  speed = 5;
   lives = 4;
-
-  /**
-   * Indicates whether the Endboss is dead.
-   * @type {boolean}
-   */
   isDead = false;
-
-  /**
-   * Indicates whether the Endboss's animation is active.
-   * @type {boolean}
-   */
   isAnimating = false;
 
   /**
@@ -207,9 +176,15 @@ class Endboss extends MovableObject {
     this.stopCurrentAnimation();
 
     soundManager.play('endbossDeadSound');
-
     this.deadIntervalEndboss();
-    soundManager.stop('backgroundMusic');
+    
+    setTimeout(() => {
+      if (World.instance) {
+        World.instance.togglePause(); // Pausiere die Welt nach 3 Sekunden
+        document.getElementById('win-screen').classList.remove('hidden'); // Zeige den Win-Screen
+        soundManager.stop('backgroundMusic');
+      }
+  }, 3000); // 3 Sekunden Verzögerung
   }
 
   /**
