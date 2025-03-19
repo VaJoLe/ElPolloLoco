@@ -48,7 +48,7 @@ class SoundManager {
    */
   play(sound) {
     if (this.sounds[sound] && !this.muted) {
-      this.sounds[sound].currentTime = 0; 
+      this.sounds[sound].currentTime = 0;
       this.sounds[sound].play();
     }
   }
@@ -91,9 +91,19 @@ class SoundManager {
    */
   unmute() {
     this.muted = false;
-    localStorage.setItem('isMuted', 'false'); 
+    localStorage.setItem('isMuted', 'false');
     for (let key in this.sounds) {
       this.sounds[key].volume = 1;
+    }
+    if (
+      World.instance &&
+      !World.instance.isPaused &&
+      World.instance.character.isSleeping
+    ) {
+      this.sounds.sleep.play();
+    } else {
+      this.sounds.sleep.pause();
+      this.sounds.sleep.currentTime = 0;
     }
     if (World.instance && !World.instance.isPaused) {
       this.sounds.backgroundMusic.play();
@@ -110,6 +120,8 @@ class SoundManager {
       this.unmute();
     } else {
       this.mute();
+      this.sounds.sleep.pause();
+      this.sounds.sleep.currentTime = 0;
     }
   }
 
@@ -119,7 +131,12 @@ class SoundManager {
    */
   toggleSleepSound(paused) {
     if (this.sounds.sleep) {
-      this.sounds.sleep.volume = paused ? 0 : 1;
+      if (paused) {
+        this.sounds.sleep.pause();
+        this.sounds.sleep.currentTime = 0;
+      } else if (World.instance?.character.isSleeping) {
+        this.sounds.sleep.play();
+      }
     }
   }
 }

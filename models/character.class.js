@@ -191,7 +191,13 @@ class Character extends MovableObject {
    * @returns {boolean} True if the character can move right, otherwise false.
    */
   characterMoveRight() {
-    return this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x;
+    let endbossBoundary =
+      this.world.level.enemies.find(e => e instanceof Endboss)?.x + 150;
+    return (
+      this.world.keyboard.RIGHT &&
+      this.x < this.world.level.level_end_x &&
+      this.x < endbossBoundary
+    );
   }
 
   /**
@@ -225,11 +231,9 @@ class Character extends MovableObject {
     if (this.isDead) return;
     this.isDead = true;
     this.stopCurrentAnimation();
-
-    let deadInterval = this.deadIntervalCharacter();
-
+    soundManager.stop('sleep');
     soundManager.stop('backgroundMusic');
-
+    let deadInterval = this.deadIntervalCharacter();
     this.animationIntervals.push(deadInterval);
     if (World.instance) World.instance.allIntervals.push(deadInterval);
   }
@@ -299,10 +303,22 @@ class Character extends MovableObject {
    * Starts an idle timer that puts the character into sleep mode after 15 seconds of inactivity.
    */
   startIdleTimer() {
+    clearTimeout(this.sleepTimeout);
+    if (
+      this.isDead ||
+      document
+        .getElementById('gameOverRestartButton')
+        ?.classList.contains('hidden') === false ||
+      World.instance?.isPaused
+    ) {
+      return;
+    }
     this.sleepTimeout = setTimeout(() => {
-      this.isSleeping = true;
-      soundManager.play('sleep');
-    }, 8000);
+      if (!this.isDead) {
+        this.isSleeping = true;
+        soundManager.play('sleep');
+      }
+    }, 5000);
   }
 
   /**
@@ -310,12 +326,19 @@ class Character extends MovableObject {
    */
   resetIdleTimer() {
     clearTimeout(this.sleepTimeout);
-
     if (this.isSleeping) {
       this.isSleeping = false;
       soundManager.stop('sleep');
     }
-
+    if (
+      this.isDead ||
+      document
+        .getElementById('gameOverRestartButton')
+        ?.classList.contains('hidden') === false ||
+      World.instance?.isPaused
+    ) {
+      return;
+    }
     this.startIdleTimer();
   }
 }

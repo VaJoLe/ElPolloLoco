@@ -81,7 +81,7 @@ class MovableObject extends DrawableObject {
    * @returns {boolean} True if a collision is detected, otherwise false.
    */
   isColliding(obj) {
-    let collisionTolerance = 30;
+    let collisionTolerance = 40;
     return (
       this.x + this.width - collisionTolerance > obj.x &&
       this.y + this.height > obj.y &&
@@ -161,5 +161,23 @@ class MovableObject extends DrawableObject {
   stopCurrentAnimation() {
     this.animationIntervals.forEach(interval => clearInterval(interval));
     this.animationIntervals = [];
+  }
+
+  /**
+   * Handles the collection of items (e.g., coins or bottles) when the character collides with them.
+   * Calls a specified function when an item is collected and removes it from the list.
+   *
+   * @param {Array} collectibles - The list of collectible items (e.g., coins or bottles).
+   * @param {Function} onCollect - The function to be called when an item is collected.
+   * @returns {Array} The updated list of collectibles, excluding the collected ones.
+   */
+  collect(collectibles, onCollect) {
+    return collectibles.filter(item => {
+      if (this.isCollidingYOnly(this, item)) {
+        onCollect(item);
+        return false; // Remove the collected item from the list
+      }
+      return true; // Keep the item in the list
+    });
   }
 }

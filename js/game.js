@@ -35,7 +35,7 @@ function goToHomeScreen() {
     document.getElementById('start-screen').style.display = 'block';
     document.getElementById('menuContainer').classList.add('hidden');
     soundManager.stop('backgroundMusic');
-    soundManager.stop('sleep'); 
+    soundManager.stop('sleep');
   }
 }
 
@@ -45,12 +45,11 @@ function goToHomeScreen() {
  */
 function restartGameWithoutStartScreen() {
   if (gameManager) {
-    document.getElementById('win-screen').classList.add('hidden'); // Hide end screen
+    document.getElementById('win-screen').classList.add('hidden');
     document.getElementById('menuContainer').classList.add('hidden');
-
     document.getElementById('canvas-container').style.display = 'block';
     document.getElementById('start-screen').style.display = 'none';
-
+    soundManager.stop('sleep');
     gameManager.restartGame();
     gameManager.startGame();
   }
@@ -124,6 +123,7 @@ function onMuteClick() {
       ? 'buttons/mute.svg'
       : 'buttons/unmute.svg';
   }
+  localStorage.setItem('isMuted', soundManager.muted);
   if (!soundManager.muted && World.instance && !World.instance.isPaused) {
     soundManager.play('backgroundMusic');
   } else {
@@ -179,7 +179,6 @@ function isMuteRequest(isMuted) {
 function onPauseClick() {
   const pauseBtn = document.getElementById('pauseButton');
   const pauseBtnImg = pauseBtn.querySelector('img');
-
   if (World.instance && typeof World.instance.togglePause === 'function') {
     World.instance.togglePause();
     pauseBtnImg.src = World.instance.isPaused

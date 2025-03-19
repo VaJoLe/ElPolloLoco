@@ -46,18 +46,19 @@ class World {
    */
   togglePause() {
     this.isPaused = !this.isPaused;
-
     if (this.isPaused) {
       this.stopAllIntervals();
       soundManager.toggleBackgroundMusic(true);
       soundManager.toggleSleepSound(true);
+      clearTimeout(this.character.sleepTimeout);
     } else {
       this.resumeAllIntervals();
       soundManager.toggleBackgroundMusic(false);
       soundManager.toggleSleepSound(false);
       if (!soundManager.muted && soundManager.sounds.backgroundMusic.paused) {
         soundManager.sounds.backgroundMusic.play();
-    }
+      }
+      this.character.resetIdleTimer();
     }
     this.pauseThrowableObjects();
     this.pauseCoins();
@@ -188,8 +189,7 @@ class World {
     let intervalId = setInterval(() => {
       this.checkSquash();
       this.checkCollisions();
-      this.collectCoins();
-      this.collectBottles();
+      this.collectItems();
     }, 20);
     this.allIntervals.push(intervalId);
   }
@@ -226,54 +226,41 @@ class World {
   }
 
   /**
- * Handles a collision between the character and the Endboss.
- */
-endbossCollisionRequest() {
-  let damage = 20; 
-  this.character.hit(damage);
-  this.statusbarHealth.setPercentage(this.character.energy);
-  if (this.character.energy <= 0) {
-    this.character.die();
+   * Handles a collision between the character and the Endboss.
+   */
+  endbossCollisionRequest() {
+    let damage = 5;
+    this.character.hit(damage);
+    this.statusbarHealth.setPercentage(this.character.energy);
+    if (this.character.energy <= 0) {
+      this.character.die();
+    }
   }
-}
-
-/**
-* Handles a collision between the character and a regular enemy (e.g., Chickens).
-*/
-chickenCollisionRequest() {
-  let damage = 1; 
-  this.character.hit(damage);
-  this.statusbarHealth.setPercentage(this.character.energy);
-  if (this.character.energy <= 0) {
-    this.character.die();
-  }
-}
 
   /**
-   * Handles coin collection.
+   * Handles a collision between the character and a regular enemy (e.g., Chickens).
    */
-  collectCoins() {
-    this.level.coins = this.level.coins.filter(coin => {
-      if (this.character.isCollidingYOnly(this.character, coin)) {
-        this.character.isCollectCoin();
-        this.statusbarCoin.setPercentage(this.character.coin);
-        return false;
-      }
-      return true;
+  chickenCollisionRequest() {
+    let damage = 1;
+    this.character.hit(damage);
+    this.statusbarHealth.setPercentage(this.character.energy);
+    if (this.character.energy <= 0) {
+      this.character.die();
+    }
+  }
+
+  /**
+   * Handles coin and bottle collection.
+   */
+  collectItems() {
+    this.level.coins = this.character.collect(this.level.coins, coin => {
+      this.character.isCollectCoin();
+      this.statusbarCoin.setPercentage(this.character.coin);
     });
-  }
 
-  /**
-   * Handles bottle collection.
-   */
-  collectBottles() {
-    this.level.bottles = this.level.bottles.filter(bottle => {
-      if (this.character.isColliding(bottle)) {
-        this.character.isCollectBottle();
-        this.statusbarBottle.setPercentage(this.character.bottle);
-        return false;
-      }
-      return true;
+    this.level.bottles = this.character.collect(this.level.bottles, bottle => {
+      this.character.isCollectBottle();
+      this.statusbarBottle.setPercentage(this.character.bottle);
     });
   }
 
@@ -304,12 +291,30 @@ chickenCollisionRequest() {
     this.addToMap(this.statusbarBottle);
     this.addToMap(this.statusbarCoin);
     this.ctx.translate(this.camera_x, 0);
+    this.drawObjects();
+    this.ctx.translate(-this.camera_x, 0);
+  }
+
+  /**
+   * Draws game objects onto the canvas in the correct order.
+   * Ensures that enemies, collectibles, the character, and throwable objects are rendered.
+   * Also updates and renders the Endboss's status bar.
+   */
+  drawObjects() {
     this.addObjectsToMap(this.level.enemies);
+
+    // Update and draw the Endboss's status bar
+    this.level.enemies.forEach(enemy => {
+      if (enemy instanceof Endboss) {
+        enemy.statusbar.updatePosition();
+        this.addToMap(enemy.statusbar);
+      }
+    });
+
     this.addObjectsToMap(this.level.coins);
     this.addObjectsToMap(this.level.bottles);
     this.addToMap(this.character);
     this.addObjectsToMap(this.throwableObjects);
-    this.ctx.translate(-this.camera_x, 0);
   }
 
   /**

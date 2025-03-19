@@ -5,8 +5,8 @@
  */
 class Endboss extends MovableObject {
   /**
- * Global variables for the endboss.
- */
+   * Global variables for the endboss.
+   */
   width = 300;
   height = 400;
   y = 50;
@@ -96,8 +96,8 @@ class Endboss extends MovableObject {
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
     this.x = 2600;
-
     this.animationIntervals = [];
+    this.statusbar = new StatusbarEndboss(this);
     this.animate();
   }
 
@@ -107,16 +107,13 @@ class Endboss extends MovableObject {
   animate() {
     this.stopCurrentAnimation();
     if (this.isAnimating) return;
-
     this.isAnimating = true;
-
     let interval = setInterval(() => {
       if (!World.instance?.isPaused && !this.isDead) {
         this.moveLeft();
         this.playAnimation(this.IMAGES_WALKING);
       }
     }, 100);
-
     this.animationIntervals.push(interval);
     if (World.instance) World.instance.allIntervals.push(interval);
   }
@@ -127,10 +124,9 @@ class Endboss extends MovableObject {
    */
   gotHit() {
     if (this.isDead) return;
-
     this.lives--;
     this.speed += 10;
-
+    this.statusbar.setPercentage(this.lives * 25);
     if (this.lives === 3) {
       this.currentAnimationImages = this.IMAGES_ALERT;
       this.changeAnimation(this.IMAGES_ALERT);
@@ -161,7 +157,6 @@ class Endboss extends MovableObject {
         this.playAnimation(images);
       }
     }, 100);
-
     this.animationIntervals.push(animInterval);
     if (World.instance) World.instance.allIntervals.push(animInterval);
   }
@@ -174,17 +169,16 @@ class Endboss extends MovableObject {
     if (this.isDead) return;
     this.isDead = true;
     this.stopCurrentAnimation();
-
+    soundManager.stop('sleep');
     soundManager.play('endbossDeadSound');
     this.deadIntervalEndboss();
-    
     setTimeout(() => {
       if (World.instance) {
-        World.instance.togglePause(); // Pausiere die Welt nach 3 Sekunden
-        document.getElementById('win-screen').classList.remove('hidden'); // Zeige den Win-Screen
+        World.instance.togglePause();
+        document.getElementById('win-screen').classList.remove('hidden');
         soundManager.stop('backgroundMusic');
       }
-  }, 3000); // 3 Sekunden Verzögerung
+    }, 1500);
   }
 
   /**
@@ -202,7 +196,6 @@ class Endboss extends MovableObject {
         clearInterval(deadInterval);
       }
     }, 100);
-
     this.animationIntervals.push(deadInterval);
     if (World.instance) World.instance.allIntervals.push(deadInterval);
   }
